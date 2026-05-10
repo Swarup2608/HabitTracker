@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root,
+  [data-theme='light'] {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 4%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 6% 10%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 262 83% 96%;
+    --accent-foreground: 262 83% 30%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 262 83% 58%;
+    --radius: 0.85rem;
+  }
+  [data-theme='dark'] {
+    --background: 240 10% 4%;
+    --foreground: 0 0% 98%;
+    --card: 240 8% 7%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 8% 7%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 262 90% 66%;
+    --primary-foreground: 240 10% 4%;
+    --secondary: 240 6% 14%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 6% 14%;
+    --muted-foreground: 240 5% 64%;
+    --accent: 262 60% 22%;
+    --accent-foreground: 262 90% 88%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 6% 16%;
+    --input: 240 6% 16%;
+    --ring: 262 90% 66%;
+  }
+  [data-theme='gaming'] {
+    --background: 230 35% 6%;
+    --foreground: 180 100% 92%;
+    --card: 230 35% 9%;
+    --card-foreground: 180 100% 92%;
+    --popover: 230 35% 9%;
+    --popover-foreground: 180 100% 92%;
+    --primary: 168 85% 55%;
+    --primary-foreground: 230 35% 6%;
+    --secondary: 290 80% 55%;
+    --secondary-foreground: 230 35% 6%;
+    --muted: 230 30% 14%;
+    --muted-foreground: 180 30% 70%;
+    --accent: 290 80% 25%;
+    --accent-foreground: 290 100% 92%;
+    --destructive: 0 90% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 230 30% 18%;
+    --input: 230 30% 18%;
+    --ring: 168 85% 55%;
+  }
+  [data-theme='fantasy'] {
+    --background: 32 40% 96%;
+    --foreground: 27 35% 15%;
+    --card: 32 50% 98%;
+    --card-foreground: 27 35% 15%;
+    --popover: 32 50% 98%;
+    --popover-foreground: 27 35% 15%;
+    --primary: 145 50% 38%;
+    --primary-foreground: 32 50% 98%;
+    --secondary: 28 55% 88%;
+    --secondary-foreground: 27 35% 25%;
+    --muted: 28 35% 92%;
+    --muted-foreground: 27 20% 40%;
+    --accent: 38 70% 80%;
+    --accent-foreground: 27 50% 25%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 28 30% 84%;
+    --input: 28 30% 84%;
+    --ring: 145 50% 38%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html, body { @apply h-full; }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+  .glass-strong {
+    @apply bg-white/10 backdrop-blur-2xl border border-white/15;
+  }
+  .gradient-mesh {
+    background:
+      radial-gradient(at 12% 8%, hsl(var(--primary)/0.35) 0px, transparent 50%),
+      radial-gradient(at 88% 12%, hsl(var(--secondary)/0.4) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, hsl(var(--accent)/0.4) 0px, transparent 60%);
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-primary via-primary to-secondary;
+  }
+  .neon-ring {
+    box-shadow: 0 0 0 1px hsl(var(--primary)/0.4), 0 0 24px hsl(var(--primary)/0.45);
+  }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 3px; }
+}
