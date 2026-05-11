@@ -27,13 +27,14 @@ const schema = z.object({
   difficulty: z.enum(['easy', 'medium', 'hard', 'epic']),
   estimatedMinutes: z.coerce.number().int().min(1).max(600),
   color: z.string().default('#8b5cf6'),
-  targetDays: z
-    .preprocess(
-      (v) => (v === '' || v == null || Number.isNaN(v) ? undefined : v),
-      z.coerce.number().int().min(1).max(3650)
-    )
-    .optional(),
-  targetMetric: z.enum(['completions', 'streak', 'days']).optional(),
+  targetDays: z.preprocess(
+    (v) => (v === '' || v == null || Number.isNaN(v) ? undefined : v),
+    z.coerce.number().int().min(1).max(3650).optional()
+  ),
+  targetMetric: z.preprocess(
+    (v) => (v === '' || v == null ? undefined : v),
+    z.enum(['completions', 'streak', 'days']).optional()
+  ),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -152,8 +153,10 @@ export function CreateHabitDialog() {
                 {...register('targetDays', { valueAsNumber: true })}
               />
               <Select
-                value={targetMetric}
-                onValueChange={(v) => setValue('targetMetric', v as FormValues['targetMetric'])}
+                value={targetMetric ?? ''}
+                onValueChange={(v) =>
+                  setValue('targetMetric', (v || undefined) as FormValues['targetMetric'])
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Measure by…" />
@@ -169,6 +172,13 @@ export function CreateHabitDialog() {
               Reach the target and we&apos;ll celebrate, then ask if you want to archive.
             </p>
           </div>
+          {Object.keys(formState.errors).length > 0 && (
+            <p className="text-xs text-red-500">
+              {Object.entries(formState.errors)
+                .map(([k, e]) => `${k}: ${(e as { message?: string })?.message ?? 'invalid'}`)
+                .join(' · ')}
+            </p>
+          )}
           <Button type="submit" className="w-full" variant="glow" loading={formState.isSubmitting}>
             Create habit
           </Button>

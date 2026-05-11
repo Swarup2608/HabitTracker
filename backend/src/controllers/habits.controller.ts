@@ -4,6 +4,7 @@ import { Habit, XP_BY_DIFFICULTY } from '../models/Habit';
 import { HabitLog } from '../models/HabitLog';
 import { User } from '../models/User';
 import { Achievement, ACHIEVEMENTS } from '../models/Achievement';
+import { checkAndUnlockAchievements } from '../services/achievements';
 import { ApiError } from '../utils/ApiError';
 import { dayKey, dayjs } from '../utils/date';
 import { levelForXp } from '../services/leveling';
@@ -30,11 +31,13 @@ export async function create(req: Request, res: Response) {
   const habit = await Habit.create({ ...req.body, user: req.user!.sub });
   await invalidateDash(req.user!.sub);
 
-  const count = await Habit.countDocuments({ user: req.user!.sub });
-  if (count === 1) {
-    await unlockAchievement(req.user!.sub, 'first_habit');
-  }
-  res.status(201).json({ habit });
+  // Check for newly unlocked achievements
+  const newAchievements = await checkAndUnlockAchievements(req.user!.sub);
+
+  res.status(201).json({ 
+    habit,
+    unlockedAchievements: newAchievements,
+  });
 }
 
 export async function update(req: Request, res: Response) {
@@ -135,6 +138,9 @@ export async function complete(req: Request, res: Response) {
     }
   }
 
+  // Check for newly unlocked achievements
+  const newAchievements = await checkAndUnlockAchievements(userId);
+
   await invalidateDash(userId);
   res.status(201).json({
     habit: fresh,
@@ -142,6 +148,7 @@ export async function complete(req: Request, res: Response) {
     targetReached,
     targetProgress,
     targetTotal: fresh?.targetDays ?? null,
+    unlockedAchievements: newAchievements,
   });
 }
 

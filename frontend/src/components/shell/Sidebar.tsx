@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, ListTodo, Sparkles, Target, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, ListTodo, Sparkles, Target, Settings, LogOut, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/stores/auth';
@@ -12,6 +12,7 @@ const items = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/habits', label: 'Habits', icon: Target },
   { href: '/todos', label: 'Todos', icon: ListTodo },
+  { href: '/about', label: 'Achievements', icon: Trophy },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 

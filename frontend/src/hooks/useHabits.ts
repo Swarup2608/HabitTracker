@@ -1,6 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import type { Habit, HabitLog } from '@/lib/types';
+import { useAchievementQueue } from '@/stores/achievements';
+
+export interface UnlockedAchievement {
+  code: string;
+  title: string;
+  description: string;
+  icon: string;
+}
 
 export interface CompleteHabitResponse {
   habit: Habit;
@@ -8,6 +16,12 @@ export interface CompleteHabitResponse {
   targetReached: boolean;
   targetProgress: number;
   targetTotal: number | null;
+  unlockedAchievements?: UnlockedAchievement[];
+}
+
+export interface CreateHabitResponse {
+  habit: Habit;
+  unlockedAchievements?: UnlockedAchievement[];
 }
 
 export function useHabits() {
@@ -40,11 +54,16 @@ export function useHabitLogs(id: string, page = 1, limit = 20) {
 
 export function useCreateHabit() {
   const qc = useQueryClient();
+  const enqueueAchievements = useAchievementQueue((s) => s.enqueue);
   return useMutation({
-    mutationFn: async (input: Partial<Habit>) => (await api.post<{ habit: Habit }>('/habits', input)).data.habit,
-    onSuccess: () => {
+    mutationFn: async (input: Partial<Habit>) => {
+      const response = await api.post<CreateHabitResponse>('/habits', input);
+      return response.data;
+    },
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ['habits'] });
       qc.invalidateQueries({ queryKey: ['dashboard'] });
+      enqueueAchievements(data.unlockedAchievements);
     },
   });
 }
@@ -76,6 +95,7 @@ export function useDeleteHabit() {
 
 export function useCompleteHabit() {
   const qc = useQueryClient();
+  const enqueueAchievements = useAchievementQueue((s) => s.enqueue);
   return useMutation({
     mutationFn: async ({
       id,
@@ -88,12 +108,16 @@ export function useCompleteHabit() {
       minutes?: number;
       notes?: string;
       feedback?: string;
-    }) => (await api.post<CompleteHabitResponse>(`/habits/${id}/complete`, input)).data,
-    onSuccess: (_d, vars) => {
+    }) => {
+      const response = await api.post<CompleteHabitResponse>(`/habits/${id}/complete`, input);
+      return response.data;
+    },
+    onSuccess: (data, vars) => {
       qc.invalidateQueries({ queryKey: ['habits'] });
       qc.invalidateQueries({ queryKey: ['habit', vars.id] });
       qc.invalidateQueries({ queryKey: ['habit-logs', vars.id] });
       qc.invalidateQueries({ queryKey: ['dashboard'] });
+      enqueueAchievements(data.unlockedAchievements);
     },
   });
 }

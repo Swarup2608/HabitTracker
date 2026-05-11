@@ -10,6 +10,7 @@ import userRoutes from './routes/users.routes';
 import habitRoutes from './routes/habits.routes';
 import todoRoutes from './routes/todos.routes';
 import dashboardRoutes from './routes/dashboard.routes';
+import achievementsRoutes from './routes/achievements.routes';
 
 export const app = express();
 
@@ -42,6 +43,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/habits', habitRoutes);
 app.use('/api/todos', todoRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/achievements', achievementsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
