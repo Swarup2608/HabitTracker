@@ -33,7 +33,7 @@ export function AuthShell({
           Tracker
         </Link>
         <h1 className="font-display text-2xl font-semibold">{title}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+        <p className="mt-1 text-sm text-muted-foreground dancing-script">{subtitle}</p>
         <div className="mt-6">{children}</div>
         {footer ? <div className="mt-6 text-sm text-muted-foreground">{footer}</div> : null}
       </motion.div>
