@@ -27,6 +27,13 @@ const schema = z.object({
   difficulty: z.enum(['easy', 'medium', 'hard', 'epic']),
   estimatedMinutes: z.coerce.number().int().min(1).max(600),
   color: z.string().default('#8b5cf6'),
+  targetDays: z
+    .preprocess(
+      (v) => (v === '' || v == null || Number.isNaN(v) ? undefined : v),
+      z.coerce.number().int().min(1).max(3650)
+    )
+    .optional(),
+  targetMetric: z.enum(['completions', 'streak', 'days']).optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -42,9 +49,15 @@ export function CreateHabitDialog() {
   });
 
   const color = watch('color');
+  const targetMetric = watch('targetMetric');
 
   const onSubmit = async (v: FormValues) => {
-    await create.mutateAsync(v);
+    const payload = { ...v };
+    if (!payload.targetDays || !payload.targetMetric) {
+      payload.targetDays = undefined;
+      payload.targetMetric = undefined;
+    }
+    await create.mutateAsync(payload);
     reset();
     setOpen(false);
   };
@@ -122,6 +135,39 @@ export function CreateHabitDialog() {
                 ))}
               </div>
             </div>
+          </div>
+          <div className="rounded-xl border border-border/60 bg-card/40 p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Target (optional)
+              </Label>
+              <span className="text-[10px] text-muted-foreground">finish & archive</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                type="number"
+                min={1}
+                max={3650}
+                placeholder="e.g. 30"
+                {...register('targetDays', { valueAsNumber: true })}
+              />
+              <Select
+                value={targetMetric}
+                onValueChange={(v) => setValue('targetMetric', v as FormValues['targetMetric'])}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Measure by…" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="completions">Total completions</SelectItem>
+                  <SelectItem value="streak">Current streak</SelectItem>
+                  <SelectItem value="days">Distinct days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Reach the target and we&apos;ll celebrate, then ask if you want to archive.
+            </p>
           </div>
           <Button type="submit" className="w-full" variant="glow" loading={formState.isSubmitting}>
             Create habit

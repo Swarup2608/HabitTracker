@@ -16,6 +16,7 @@ export interface User {
 
 export type Difficulty = 'easy' | 'medium' | 'hard' | 'epic';
 export type HabitStatus = 'active' | 'paused' | 'archived';
+export type TargetMetric = 'completions' | 'streak' | 'days';
 export type Mood = 'awful' | 'bad' | 'okay' | 'good' | 'great';
 export type Priority = 'low' | 'medium' | 'high' | 'urgent';
 
@@ -38,6 +39,9 @@ export interface Habit {
   lastCompletedAt?: string;
   startedAt: string;
   order: number;
+  targetDays?: number | null;
+  targetMetric?: TargetMetric | null;
+  targetReachedAt?: string | null;
   createdAt: string;
 }
 

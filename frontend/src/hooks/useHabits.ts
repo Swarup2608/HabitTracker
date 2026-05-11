@@ -2,6 +2,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import type { Habit, HabitLog } from '@/lib/types';
 
+export interface CompleteHabitResponse {
+  habit: Habit;
+  log: HabitLog;
+  targetReached: boolean;
+  targetProgress: number;
+  targetTotal: number | null;
+}
+
 export function useHabits() {
   return useQuery({
     queryKey: ['habits'],
@@ -80,7 +88,7 @@ export function useCompleteHabit() {
       minutes?: number;
       notes?: string;
       feedback?: string;
-    }) => (await api.post(`/habits/${id}/complete`, input)).data,
+    }) => (await api.post<CompleteHabitResponse>(`/habits/${id}/complete`, input)).data,
     onSuccess: (_d, vars) => {
       qc.invalidateQueries({ queryKey: ['habits'] });
       qc.invalidateQueries({ queryKey: ['habit', vars.id] });

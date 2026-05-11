@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Check, Flame, MoreVertical, Pause, Play, Trash2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { Check, Flame, MoreVertical, Pause, Play, Trash2, Trophy } from 'lucide-react';
 import type { Habit } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useDeleteHabit, useUpdateHabit } from '@/hooks/useHabits';
 import { CompleteDialog } from '@/components/habits/CompleteDialog';
+import { TargetReachedDialog } from '@/components/habits/TargetReachedDialog';
 
 const DIFFICULTY_LABEL: Record<string, string> = { easy: 'Easy', medium: 'Medium', hard: 'Hard', epic: 'Epic' };
 
@@ -16,6 +18,19 @@ export function HabitCard({ habit }: { habit: Habit }) {
   const update = useUpdateHabit();
   const remove = useDeleteHabit();
   const [completeOpen, setCompleteOpen] = useState(false);
+  const [targetReachedOpen, setTargetReachedOpen] = useState(false);
+
+  const targetAwaitingDecision =
+    !!habit.targetReachedAt && habit.status === 'active';
+
+  useEffect(() => {
+    if (!targetAwaitingDecision) return;
+    const seenKey = `target-celebrated:${habit._id}:${habit.targetReachedAt}`;
+    if (typeof window !== 'undefined' && !window.sessionStorage.getItem(seenKey)) {
+      window.sessionStorage.setItem(seenKey, '1');
+      setTargetReachedOpen(true);
+    }
+  }, [targetAwaitingDecision, habit._id, habit.targetReachedAt]);
 
   const today = new Date().toISOString().slice(0, 10);
   const completedToday = habit.lastCompletedAt
@@ -27,6 +42,23 @@ export function HabitCard({ habit }: { habit: Habit }) {
     Math.floor((Date.now() - new Date(habit.startedAt).getTime()) / 86_400_000) + 1
   );
   const completionPct = Math.min(100, Math.round((habit.totalCompletions / days) * 100));
+
+  const hasTarget = !!(habit.targetDays && habit.targetMetric);
+  const targetProgress = !hasTarget
+    ? 0
+    : habit.targetMetric === 'streak'
+      ? habit.currentStreak
+      : habit.totalCompletions;
+  const targetPct = hasTarget
+    ? Math.min(100, Math.round((targetProgress / (habit.targetDays as number)) * 100))
+    : 0;
+  const targetLabel = hasTarget
+    ? habit.targetMetric === 'streak'
+      ? 'Streak target'
+      : habit.targetMetric === 'days'
+        ? 'Days target'
+        : 'Completion target'
+    : '';
 
   return (
     <motion.div
@@ -101,6 +133,40 @@ export function HabitCard({ habit }: { habit: Habit }) {
         </div>
       </div>
 
+      {hasTarget && (
+        <div className="relative mt-3">
+          <div className="mb-1 flex items-center justify-between text-[10px] uppercase tracking-wide text-muted-foreground">
+            <span>{targetLabel}</span>
+            <span>
+              {targetProgress}/{habit.targetDays}
+              {habit.targetReachedAt && ' ✓'}
+            </span>
+          </div>
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+            <div
+              className="h-full transition-all"
+              style={{
+                width: `${targetPct}%`,
+                background: `linear-gradient(90deg, ${habit.color}, hsl(var(--secondary)))`,
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {targetAwaitingDecision && (
+        <button
+          type="button"
+          onClick={() => setTargetReachedOpen(true)}
+          className="relative mt-3 flex w-full items-center justify-between gap-2 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-transparent px-3 py-2 text-left text-xs font-semibold text-amber-200 hover:from-amber-500/25 hover:to-amber-500/5 transition-colors"
+        >
+          <span className="flex items-center gap-2">
+            <Trophy className="h-4 w-4" /> Target reached — choose what&apos;s next
+          </span>
+          <span aria-hidden>→</span>
+        </button>
+      )}
+
       <div className="relative mt-4 flex items-center gap-2">
         <Button
           size="sm"
@@ -119,7 +185,19 @@ export function HabitCard({ habit }: { habit: Habit }) {
         </Button>
       </div>
 
-      <CompleteDialog habit={habit} open={completeOpen} onOpenChange={setCompleteOpen} />
+      <CompleteDialog
+        habit={habit}
+        open={completeOpen}
+        onOpenChange={setCompleteOpen}
+        onCompleted={(res) => {
+          if (res.targetReached) setTargetReachedOpen(true);
+        }}
+      />
+      <TargetReachedDialog
+        habit={habit}
+        open={targetReachedOpen}
+        onOpenChange={setTargetReachedOpen}
+      />
     </motion.div>
   );
 }

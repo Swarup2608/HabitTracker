@@ -9,12 +9,15 @@ export const habitCreateSchema = z.object({
   difficulty: z.enum(['easy', 'medium', 'hard', 'epic']).default('medium'),
   targetPerWeek: z.number().int().min(1).max(7).default(7),
   estimatedMinutes: z.number().int().min(1).max(600).default(15),
+  targetDays: z.number().int().min(1).max(3650).nullable().optional(),
+  targetMetric: z.enum(['completions', 'streak', 'days']).nullable().optional(),
 });
 
 export const habitUpdateSchema = habitCreateSchema.partial().extend({
   status: z.enum(['active', 'paused', 'archived']).optional(),
   order: z.number().int().optional(),
   startedAt: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}/)).optional(),
+  targetReachedAt: z.string().datetime().nullable().optional(),
 });
 
 export const habitCompleteSchema = z.object({

@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { AuthShell } from '@/components/auth/AuthShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { api, apiError } from '@/lib/api';
 
@@ -50,7 +51,7 @@ function ResetForm() {
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="password">New password</Label>
-        <Input id="password" type="password" {...register('password')} />
+        <PasswordInput id="password" autoComplete="new-password" {...register('password')} />
         {formState.errors.password && (
           <p className="text-xs text-destructive">Min 8 chars, mix upper / lower / number</p>
         )}

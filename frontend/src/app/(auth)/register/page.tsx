@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { AuthShell } from '@/components/auth/AuthShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/stores/auth';
 import { apiError } from '@/lib/api';
@@ -69,7 +70,7 @@ export default function RegisterPage() {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" {...register('password')} />
+          <PasswordInput id="password" autoComplete="new-password" {...register('password')} />
           {formState.errors.password && (
             <p className="text-xs text-destructive">{formState.errors.password.message}</p>
           )}

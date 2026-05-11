@@ -119,11 +119,30 @@ export async function complete(req: Request, res: Response) {
     await maybeUnlockLevel(userId, user.level);
   }
 
-  const fresh = await Habit.findById(habit._id).lean();
+  let fresh = await Habit.findById(habit._id).lean();
   if (fresh) await maybeUnlockStreak(userId, fresh.currentStreak);
 
+  // Target progress + first-time reached detection
+  let targetReached = false;
+  let targetProgress = 0;
+  if (fresh && fresh.targetDays && fresh.targetMetric) {
+    targetProgress =
+      fresh.targetMetric === 'streak' ? fresh.currentStreak : fresh.totalCompletions;
+    if (targetProgress >= fresh.targetDays && !fresh.targetReachedAt) {
+      await Habit.updateOne({ _id: fresh._id }, { $set: { targetReachedAt: new Date() } });
+      fresh = await Habit.findById(habit._id).lean();
+      targetReached = true;
+    }
+  }
+
   await invalidateDash(userId);
-  res.status(201).json({ habit: fresh, log });
+  res.status(201).json({
+    habit: fresh,
+    log,
+    targetReached,
+    targetProgress,
+    targetTotal: fresh?.targetDays ?? null,
+  });
 }
 
 export async function logs(req: Request, res: Response) {

@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useCompleteHabit } from '@/hooks/useHabits';
+import { useCompleteHabit, type CompleteHabitResponse } from '@/hooks/useHabits';
 import { apiError } from '@/lib/api';
 import type { Habit } from '@/lib/types';
 
@@ -32,11 +32,13 @@ export function CompleteDialog({
   open,
   onOpenChange,
   defaultDate,
+  onCompleted,
 }: {
   habit: Habit;
   open: boolean;
   onOpenChange: (v: boolean) => void;
   defaultDate?: string;
+  onCompleted?: (res: CompleteHabitResponse) => void;
 }) {
   const complete = useCompleteHabit();
   const [date, setDate] = useState(defaultDate ?? todayKey());
@@ -52,7 +54,7 @@ export function CompleteDialog({
   const submit = async () => {
     setErr(null);
     try {
-      await complete.mutateAsync({
+      const res = await complete.mutateAsync({
         id: habit._id,
         date: date === todayKey() ? undefined : date,
         notes: notes.trim() || undefined,
@@ -66,6 +68,7 @@ export function CompleteDialog({
       setMinutes(habit.estimatedMinutes);
       setDate(todayKey());
       onOpenChange(false);
+      onCompleted?.(res);
     } catch (e) {
       setErr(apiError(e));
     }

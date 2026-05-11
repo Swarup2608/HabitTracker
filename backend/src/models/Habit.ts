@@ -2,6 +2,7 @@ import { Schema, model, Document, Types } from 'mongoose';
 
 export type Difficulty = 'easy' | 'medium' | 'hard' | 'epic';
 export type HabitStatus = 'active' | 'paused' | 'archived';
+export type TargetMetric = 'completions' | 'streak' | 'days';
 
 export interface IHabit extends Document {
   _id: Types.ObjectId;
@@ -23,6 +24,9 @@ export interface IHabit extends Document {
   lastCompletedAt?: Date;
   startedAt: Date;
   order: number;
+  targetDays?: number | null;
+  targetMetric?: TargetMetric | null;
+  targetReachedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -47,6 +51,9 @@ const habitSchema = new Schema<IHabit>(
     lastCompletedAt: Date,
     startedAt: { type: Date, default: () => new Date() },
     order: { type: Number, default: 0 },
+    targetDays: { type: Number, default: null, min: 1, max: 3650 },
+    targetMetric: { type: String, enum: ['completions', 'streak', 'days', null], default: null },
+    targetReachedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

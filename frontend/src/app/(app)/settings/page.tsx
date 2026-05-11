@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Moon, Sun, Sword, Sprout, Lock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -149,11 +150,11 @@ export default function SettingsPage() {
         <CardContent className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="cpwd">Current password</Label>
-            <Input id="cpwd" type="password" value={currentPwd} onChange={(e) => setCurrentPwd(e.target.value)} />
+            <PasswordInput id="cpwd" autoComplete="new-password" autoCorrect="off" autoCapitalize="off" spellCheck={false} value={currentPwd} onChange={(e) => setCurrentPwd(e.target.value)} />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="npwd">New password</Label>
-            <Input id="npwd" type="password" value={newPwd} onChange={(e) => setNewPwd(e.target.value)} />
+            <PasswordInput id="npwd" autoComplete="new-password" autoCorrect="off" autoCapitalize="off" spellCheck={false} value={newPwd} onChange={(e) => setNewPwd(e.target.value)} />
           </div>
           <div className="md:col-span-2 flex items-center gap-3">
             <Button onClick={changePassword} loading={pwdSaving} variant="outline">
