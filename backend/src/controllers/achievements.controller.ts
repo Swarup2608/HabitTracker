@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import { Achievement, ACHIEVEMENTS } from '../models/Achievement';
 import { UserMonthlyChallenges } from '../models/MonthlyChallenges';
-import { generateMonthlyChallenge } from '../services/challenges';
+import { generateMonthlyChallenge, evaluateCompletedTasks } from '../services/challenges';
 import { checkAndUnlockAchievements } from '../services/achievements';
 import { asyncHandler } from '../utils/asyncHandler';
 
@@ -77,6 +77,27 @@ export const getMonthlyChallenge = asyncHandler(async (req: Request, res: Respon
   // TypeScript type guard - ensure userChallenge is not null
   if (!userChallenge) {
     return res.status(500).json({ error: 'Failed to create monthly challenge' });
+  }
+
+  // Auto-evaluate which tasks the user has met based on real activity.
+  const autoCompleted = await evaluateCompletedTasks(userObjectId, monthlyTasks);
+  if (autoCompleted.length) {
+    const existing = new Set(userChallenge.completedTasks ?? []);
+    const merged = Array.from(new Set([...(userChallenge.completedTasks ?? []), ...autoCompleted]));
+    const newlyCompleted = autoCompleted.some((id) => !existing.has(id));
+    if (newlyCompleted) {
+      const allDone = merged.length === monthlyTasks.length;
+      await UserMonthlyChallenges.updateOne(
+        { _id: (userChallenge as any)._id },
+        {
+          $set: {
+            completedTasks: merged,
+            ...(allDone && !userChallenge.completedAt ? { completedAt: new Date() } : {}),
+          },
+        }
+      );
+      userChallenge = { ...userChallenge, completedTasks: merged };
+    }
   }
 
   res.json({

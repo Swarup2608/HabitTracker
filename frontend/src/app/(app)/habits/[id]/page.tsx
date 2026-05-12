@@ -27,6 +27,8 @@ const INSIGHTS = [
 const MOOD_EMOJI: Record<string, string> = {
   awful: '😖', bad: '😕', okay: '😐', good: '🙂', great: '🤩',
 };
+const MOODS = ['awful', 'bad', 'okay', 'good', 'great'] as const;
+type Mood = (typeof MOODS)[number];
 
 const todayKey = () => new Date().toISOString().slice(0, 10);
 
@@ -256,9 +258,23 @@ function LogRow({ habitId, log, index }: { habitId: string; log: HabitLog; index
   const remove = useDeleteLog(habitId);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(log.notes ?? '');
+  const [mood, setMood] = useState<Mood | undefined>(log.mood as Mood | undefined);
+  const [energy, setEnergy] = useState<number | undefined>(log.energy);
+
+  const startEdit = () => {
+    setDraft(log.notes ?? '');
+    setMood(log.mood as Mood | undefined);
+    setEnergy(log.energy);
+    setEditing(true);
+  };
 
   const save = async () => {
-    await update.mutateAsync({ logId: log._id, notes: draft.trim() || undefined });
+    await update.mutateAsync({
+      logId: log._id,
+      notes: draft.trim() || undefined,
+      mood,
+      energy,
+    });
     setEditing(false);
   };
 
@@ -282,12 +298,51 @@ function LogRow({ habitId, log, index }: { habitId: string; log: HabitLog; index
         </div>
 
         {editing ? (
-          <div className="mt-2 space-y-2">
+          <div className="mt-2 space-y-3">
             <Textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               placeholder="What happened on this day?"
             />
+            <div className="space-y-1.5">
+              <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Mood</div>
+              <div className="flex flex-wrap gap-1.5">
+                {MOODS.map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setMood((cur) => (cur === m ? undefined : m))}
+                    className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs transition-colors ${
+                      mood === m
+                        ? 'border-primary bg-primary/15 text-foreground'
+                        : 'border-border/60 text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <span>{MOOD_EMOJI[m]}</span>
+                    <span className="capitalize">{m}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Energy</div>
+              <div className="flex gap-1.5">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setEnergy((cur) => (cur === n ? undefined : n))}
+                    className={`h-8 w-8 rounded-md border text-xs font-semibold transition-colors ${
+                      energy === n
+                        ? 'border-primary bg-primary text-primary-foreground'
+                        : 'border-border/60 text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="flex gap-2">
               <Button size="sm" onClick={save} loading={update.isPending}>
                 Save
@@ -307,9 +362,9 @@ function LogRow({ habitId, log, index }: { habitId: string; log: HabitLog; index
       {!editing && (
         <div className="flex items-center gap-1">
           <button
-            onClick={() => setEditing(true)}
+            onClick={startEdit}
             className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
-            aria-label="Edit notes"
+            aria-label="Edit log"
           >
             <Pencil className="h-3.5 w-3.5" />
           </button>

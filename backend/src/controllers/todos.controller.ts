@@ -5,10 +5,29 @@ import { dayKey, dayjs } from '../utils/date';
 
 export async function list(req: Request, res: Response) {
   const today = dayKey();
-  const fiveDaysAgo = dayjs.utc().subtract(5, 'day').format('YYYY-MM-DD');
+  const { year, month } = req.query as { year?: string; month?: string };
+
+  let from: string;
+  let to: string;
+  if (year && month) {
+    const y = Number(year);
+    const m = Number(month);
+    if (!Number.isFinite(y) || !Number.isFinite(m) || m < 1 || m > 12) {
+      from = dayjs.utc().subtract(5, 'day').format('YYYY-MM-DD');
+      to = dayjs.utc().add(60, 'day').format('YYYY-MM-DD');
+    } else {
+      const start = dayjs.utc(`${y}-${String(m).padStart(2, '0')}-01`).startOf('month');
+      from = start.format('YYYY-MM-DD');
+      to = start.endOf('month').format('YYYY-MM-DD');
+    }
+  } else {
+    from = dayjs.utc().subtract(5, 'day').format('YYYY-MM-DD');
+    to = dayjs.utc().add(60, 'day').format('YYYY-MM-DD');
+  }
+
   const todos = await Todo.find({
     user: req.user!.sub,
-    dayKey: { $gte: fiveDaysAgo },
+    dayKey: { $gte: from, $lte: to },
   })
     .sort({ dayKey: -1, order: 1, createdAt: 1 })
     .lean();
@@ -18,14 +37,15 @@ export async function list(req: Request, res: Response) {
     grouped[t.dayKey] = grouped[t.dayKey] || [];
     grouped[t.dayKey].push(t);
   }
-  res.json({ today, grouped });
+  res.json({ today, grouped, range: { from, to } });
 }
 
 export async function create(req: Request, res: Response) {
+  const { dayKey: requestedDay, ...rest } = req.body ?? {};
   const todo = await Todo.create({
-    ...req.body,
+    ...rest,
     user: req.user!.sub,
-    dayKey: dayKey(),
+    dayKey: requestedDay || dayKey(),
   });
   res.status(201).json({ todo });
 }

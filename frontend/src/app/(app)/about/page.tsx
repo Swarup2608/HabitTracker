@@ -37,20 +37,8 @@ const iconMap: Record<string, React.ComponentType<IconProps>> = {
 
 export default function AchievementsPage() {
   const { achievements, loading: achievementsLoading } = useAchievements();
-  const { challenge, completeTask } = useMonthlyChallenge();
+  const { challenge } = useMonthlyChallenge();
   const [activeTab, setActiveTab] = useState<'achievements' | 'challenges'>('achievements');
-  const [completingTask, setCompletingTask] = useState<string | null>(null);
-
-  const handleCompleteTask = async (taskId: string) => {
-    setCompletingTask(taskId);
-    try {
-      await completeTask(taskId);
-    } catch (error) {
-      console.error('Failed to complete task:', error);
-    } finally {
-      setCompletingTask(null);
-    }
-  };
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -203,23 +191,11 @@ export default function AchievementsPage() {
                   const isCompleted = challenge.userChallenge.completedTasks.includes(task.id);
                   const IconComponent = iconMap[task.icon] || Icons.Star;
 
-                  const difficultyColor = {
-                    easy: 'bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-800',
-                    medium: 'bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800',
-                    hard: 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800',
-                  };
-
-                  const difficultyTextColor = {
-                    easy: 'text-emerald-700 dark:text-emerald-300',
-                    medium: 'text-amber-700 dark:text-amber-300',
-                    hard: 'text-red-700 dark:text-red-300',
-                  };
-
-                  const difficultyBadgeColor = {
-                    easy: 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300',
-                    medium: 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300',
-                    hard: 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300',
-                  };
+                  const difficultyAccent = {
+                    easy: 'before:bg-primary/40',
+                    medium: 'before:bg-primary/70',
+                    hard: 'before:bg-primary',
+                  }[task.difficulty];
 
                   return (
                     <motion.div
@@ -228,40 +204,34 @@ export default function AchievementsPage() {
                       animate={{ opacity: 1, y: 0 }}
                     >
                       <Card
-                        className={`h-full transition-all ${
-                          isCompleted
-                            ? 'ring-2 ring-primary bg-primary/5'
-                            : difficultyColor[task.difficulty]
+                        className={`relative h-full overflow-hidden transition-all before:absolute before:inset-y-0 before:left-0 before:w-1 ${difficultyAccent} ${
+                          isCompleted ? 'ring-1 ring-primary/40 bg-primary/5' : ''
                         }`}
                       >
                         <CardHeader>
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <IconComponent className="w-5 h-5 text-primary" />
+                                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                  <IconComponent className="w-4 h-4" />
+                                </span>
                               </div>
                               <CardTitle className="text-base">{task.title}</CardTitle>
                             </div>
                             {isCompleted && (
-                              <div className="text-xl">✓</div>
+                              <Icons.CheckCircle2 className="w-5 h-5 text-primary" />
                             )}
                           </div>
                           <div className="mt-2">
-                            <Badge className={`text-xs ${difficultyBadgeColor[task.difficulty]}`}>
-                              {task.difficulty.charAt(0).toUpperCase() + task.difficulty.slice(1)}
+                            <Badge variant="outline" className="text-xs capitalize">
+                              {task.difficulty}
                             </Badge>
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-3">
                           <div>
                             <p className="text-sm text-muted-foreground mb-2">{task.description}</p>
-                            <div className={`text-sm p-2 rounded-lg ${
-                              task.difficulty === 'easy'
-                                ? 'bg-emerald-100 dark:bg-emerald-900/30'
-                                : task.difficulty === 'medium'
-                                ? 'bg-amber-100 dark:bg-amber-900/30'
-                                : 'bg-red-100 dark:bg-red-900/30'
-                            }`}>
+                            <div className="text-sm p-2 rounded-lg bg-muted/50 border border-border/40">
                               <span className="font-medium">Goal:</span> {task.objective}
                             </div>
                           </div>
@@ -271,16 +241,9 @@ export default function AchievementsPage() {
                             <div className="text-sm font-semibold text-foreground">{task.reward}</div>
                           </div>
 
-                          {!isCompleted && (
-                            <Button
-                              onClick={() => handleCompleteTask(task.id)}
-                              disabled={completingTask === task.id}
-                              size="sm"
-                              className="w-full mt-2"
-                            >
-                              {completingTask === task.id ? 'Completing...' : 'Mark as Complete'}
-                            </Button>
-                          )}
+                          <div className="text-[11px] text-muted-foreground italic">
+                            {isCompleted ? 'Completed automatically' : 'Tracks automatically from your activity'}
+                          </div>
                         </CardContent>
                       </Card>
                     </motion.div>

@@ -68,6 +68,9 @@ export interface Todo {
   completedAt?: string;
   dayKey: string;
   order: number;
+  imageUrl?: string;
+  link?: string;
+  location?: string;
 }
 
 export interface Achievement {

@@ -2,8 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
 import * as Icons from 'lucide-react';
 import { useAchievementQueue, type UnlockedAchievement } from '@/stores/achievements';
+
+export function celebrateAchievement() {
+  void confetti({
+    particleCount: 120,
+    spread: 72,
+    origin: { y: 0.72 },
+    colors: ['#2dd4bf', '#a78bfa', '#facc15', '#60a5fa'],
+  });
+}
 
 interface IconProps {
   className?: string;
@@ -49,6 +59,7 @@ export function AchievementPopup({ achievement: propAchievement, onDismiss: prop
   useEffect(() => {
     if (achievement) {
       setIsVisible(true);
+      celebrateAchievement();
       const timer = setTimeout(() => {
         setIsVisible(false);
         setTimeout(onDismiss, 300);

@@ -19,11 +19,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCreateHabit } from '@/hooks/useHabits';
+import { HABIT_CATEGORIES } from '@/lib/categories';
 
 const schema = z.object({
   name: z.string().min(1).max(80),
   description: z.string().max(500).optional(),
-  category: z.string().min(1),
+  categoryKey: z.string().min(1),
+  categoryOther: z.string().max(40).optional(),
+  category: z.string().optional(),
   difficulty: z.enum(['easy', 'medium', 'hard', 'epic']),
   estimatedMinutes: z.coerce.number().int().min(1).max(600),
   color: z.string().default('#8b5cf6'),
@@ -46,14 +49,24 @@ export function CreateHabitDialog() {
   const create = useCreateHabit();
   const { register, handleSubmit, setValue, watch, reset, formState } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { difficulty: 'medium', category: 'general', estimatedMinutes: 15, color: '#8b5cf6' },
+    defaultValues: { difficulty: 'medium', categoryKey: 'study', estimatedMinutes: 15, color: '#8b5cf6' },
   });
 
   const color = watch('color');
   const targetMetric = watch('targetMetric');
+  const categoryKey = watch('categoryKey');
 
   const onSubmit = async (v: FormValues) => {
-    const payload = { ...v };
+    const resolvedCategory =
+      v.categoryKey === 'other'
+        ? (v.categoryOther?.trim() || 'other')
+        : v.categoryKey;
+    const payload: Record<string, unknown> = {
+      ...v,
+      category: resolvedCategory,
+    };
+    delete payload.categoryKey;
+    delete payload.categoryOther;
     if (!payload.targetDays || !payload.targetMetric) {
       payload.targetDays = undefined;
       payload.targetMetric = undefined;
@@ -87,7 +100,34 @@ export function CreateHabitDialog() {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Category</Label>
-              <Input {...register('category')} placeholder="fitness" />
+              <Select
+                value={categoryKey}
+                onValueChange={(v) => setValue('categoryKey', v, { shouldValidate: true })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Pick a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {HABIT_CATEGORIES.map((c) => {
+                    const Icon = c.icon;
+                    return (
+                      <SelectItem key={c.value} value={c.value}>
+                        <span className="inline-flex items-center gap-2">
+                          <Icon className="h-3.5 w-3.5" />
+                          {c.label}
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+              {categoryKey === 'other' && (
+                <Input
+                  {...register('categoryOther')}
+                  placeholder="Name your category"
+                  className="mt-1.5"
+                />
+              )}
             </div>
             <div className="space-y-1.5">
               <Label>Difficulty</Label>

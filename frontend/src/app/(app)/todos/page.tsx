@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Circle, Plus, Trash2 } from 'lucide-react';
+import { CalendarDays, CheckCircle2, Circle, ImageIcon, LayoutList, Link as LinkIcon, MapPin, Plus, Trash2 } from 'lucide-react';
 import { useCreateTodo, useDeleteTodo, useTodos, useUpdateTodo } from '@/hooks/useTodos';
+import { MonthCalendar } from '@/components/todos/MonthCalendar';
+import { CreateTodoDialog } from '@/components/todos/CreateTodoDialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -27,6 +29,7 @@ const PRIORITY_COLOR: Record<string, string> = {
 };
 
 export default function TodosPage() {
+  const [view, setView] = useState<'list' | 'month'>('list');
   const { data, isLoading } = useTodos();
   const create = useCreateTodo();
   const [title, setTitle] = useState('');
@@ -38,6 +41,21 @@ export default function TodosPage() {
     await create.mutateAsync({ title: title.trim(), priority });
     setTitle('');
   };
+
+  if (view === 'month') {
+    return (
+      <div className="mx-auto max-w-5xl space-y-6">
+        <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="font-display text-3xl font-bold">Todos · Month</h1>
+            <p className="text-sm text-muted-foreground">Plan ahead. Click a day to add or review.</p>
+          </div>
+          <ViewSwitcher view={view} setView={setView} />
+        </header>
+        <MonthCalendar />
+      </div>
+    );
+  }
 
   if (isLoading || !data) {
     return (
@@ -58,9 +76,21 @@ export default function TodosPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <header>
-        <h1 className="font-display text-3xl font-bold">Today</h1>
-        <p className="text-sm text-muted-foreground">{formatRelativeDay(data.today)} · {todayPct}% complete</p>
+      <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="font-display text-3xl font-bold">Today</h1>
+          <p className="text-sm text-muted-foreground">{formatRelativeDay(data.today)} · {todayPct}% complete</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <CreateTodoDialog
+            trigger={
+              <Button variant="outline" size="sm">
+                <Plus className="h-4 w-4" /> New (any day)
+              </Button>
+            }
+          />
+          <ViewSwitcher view={view} setView={setView} />
+        </div>
       </header>
 
       <Card>
@@ -134,9 +164,41 @@ export default function TodosPage() {
   );
 }
 
+function ViewSwitcher({
+  view,
+  setView,
+}: {
+  view: 'list' | 'month';
+  setView: (v: 'list' | 'month') => void;
+}) {
+  return (
+    <div className="inline-flex rounded-lg border border-border/60 bg-card/40 p-0.5">
+      <button
+        onClick={() => setView('list')}
+        className={cn(
+          'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
+          view === 'list' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+        )}
+      >
+        <LayoutList className="h-3.5 w-3.5" /> List
+      </button>
+      <button
+        onClick={() => setView('month')}
+        className={cn(
+          'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
+          view === 'month' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+        )}
+      >
+        <CalendarDays className="h-3.5 w-3.5" /> Month
+      </button>
+    </div>
+  );
+}
+
 function TodoRow({ todo, faded = false }: { todo: Todo; faded?: boolean }) {
   const update = useUpdateTodo();
   const remove = useDeleteTodo();
+  const hasAttachments = !!(todo.imageUrl || todo.link || todo.location);
   return (
     <motion.div
       layout
@@ -144,13 +206,13 @@ function TodoRow({ todo, faded = false }: { todo: Todo; faded?: boolean }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -10 }}
       className={cn(
-        'flex items-center gap-3 rounded-xl border border-border/60 bg-card/40 p-3 transition-colors',
+        'flex items-start gap-3 rounded-xl border border-border/60 bg-card/40 p-3 transition-colors',
         faded && 'opacity-70'
       )}
     >
       <button
         onClick={() => update.mutate({ id: todo._id, completed: !todo.completed })}
-        className="text-muted-foreground transition-colors hover:text-primary"
+        className="mt-0.5 text-muted-foreground transition-colors hover:text-primary"
         aria-label="Toggle complete"
       >
         {todo.completed ? (
@@ -164,6 +226,40 @@ function TodoRow({ todo, faded = false }: { todo: Todo; faded?: boolean }) {
           {todo.title}
         </div>
         {todo.notes && <p className="mt-0.5 text-xs text-muted-foreground">{todo.notes}</p>}
+        {hasAttachments && (
+          <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+            {todo.location && (
+              <span className="inline-flex items-center gap-1">
+                <MapPin className="h-3 w-3" /> {todo.location}
+              </span>
+            )}
+            {todo.link && (
+              <a
+                href={todo.link}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-primary hover:underline"
+              >
+                <LinkIcon className="h-3 w-3" /> link
+              </a>
+            )}
+            {todo.imageUrl && (
+              <a href={todo.imageUrl} target="_blank" rel="noreferrer" className="inline-block">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={todo.imageUrl}
+                  alt=""
+                  className="h-10 w-10 rounded-md object-cover"
+                />
+              </a>
+            )}
+            {todo.imageUrl && !todo.location && !todo.link && (
+              <span className="inline-flex items-center gap-1">
+                <ImageIcon className="h-3 w-3" />
+              </span>
+            )}
+          </div>
+        )}
       </div>
       <span className={cn('rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide', PRIORITY_COLOR[todo.priority])}>
         {todo.priority}

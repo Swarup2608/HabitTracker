@@ -12,6 +12,9 @@ export interface ITodo extends Document {
   completedAt?: Date;
   dayKey: string;
   order: number;
+  imageUrl?: string;
+  link?: string;
+  location?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +29,9 @@ const todoSchema = new Schema<ITodo>(
     completedAt: Date,
     dayKey: { type: String, required: true, index: true },
     order: { type: Number, default: 0 },
+    imageUrl: { type: String, maxlength: 2000 },
+    link: { type: String, maxlength: 2000 },
+    location: { type: String, maxlength: 300 },
   },
   { timestamps: true }
 );
