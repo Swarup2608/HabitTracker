@@ -35,24 +35,24 @@ export function TopNav() {
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between gap-6">
         <Link
           href="/"
-          className="flex items-center gap-2 group"
+          className="flex items-center gap-2 group "
           aria-label="Tally home"
         >
           <span
             className="inline-block w-7 h-7 rounded-lg bg-gradient-to-br from-primary via-primary to-secondary shadow-[0_0_20px_hsl(var(--primary)/0.5)] group-hover:shadow-[0_0_30px_hsl(var(--primary)/0.8)] transition-shadow"
             aria-hidden="true"
           />
-          <span className="text-xl font-bold tracking-tight text-foreground">
+          <span className="fredericka-the-great font-semibold text-3xl  tracking-tight">
             Tally
           </span>
         </Link>
 
-        <ul className="hidden md:flex items-center gap-1">
+        <ul className="hidden md:flex items-center gap-1 py-3 px-2 rounded-full bg-foreground/10">
           {links.map((l) => (
             <li key={l.href}>
               <a
                 href={l.href}
-                className="px-4 py-2 rounded-full text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
+                className="px-4 py-2 rounded-full text-md text-muted-foreground hover:text-foreground  hover:bg-muted-foreground/50   transition-colors"
               >
                 {l.label}
               </a>

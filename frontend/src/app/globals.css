@@ -1,14 +1,37 @@
 @import url('https://fonts.googleapis.com/css2?family=DynaPuff:wdth,wght@75..100,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Atomic+Age&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Monoton&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 *{
-  font-family: "DynaPuff", sans-serif;
+  /* font-family: "DynaPuff", sans-serif; */
   border-color: var(--border);
   scroll-behavior: smooth;
   text-transform: capitalize;
+}
+
+@font-face {
+  font-family: "Chillax";
+  src: url(../fonts/Chillax-Variable.ttf) format('truetype-variations');
+  font-display: swap;
+}
+
+.dyana-puff {
+  font-family: "DynaPuff", sans-serif;
+}
+.chillax-font {
+  font-family: "Chillax", sans-serif;
+}
+.atomic-age {
+  font-family: "Atomic Age", sans-serif;
+}
+.fredericka-the-great{
+  font-family:"Monoton", sans-serif;
+  font-weight: 400;
+
 }
 
 :root {

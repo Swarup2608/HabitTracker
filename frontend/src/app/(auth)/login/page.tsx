@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -22,9 +22,15 @@ type FormValues = z.infer<typeof schema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const login = useAuth((s) => s.login);
+  const { user, loading, login } = useAuth();
   const [err, setErr] = useState<string | null>(null);
   const { register, handleSubmit, formState } = useForm<FormValues>({ resolver: zodResolver(schema) });
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/dashboard');
+    }
+  }, [user, loading, router]);
 
   const onSubmit = async (v: FormValues) => {
     setErr(null);
@@ -35,6 +41,20 @@ export default function LoginPage() {
       setErr(apiError(e));
     }
   };
+
+  if (loading) {
+    return (
+      <AuthShell title="Loading..." subtitle="">
+        <div className="flex justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </AuthShell>
+    );
+  }
+
+  if (user) {
+    return null; // Will redirect via useEffect
+  }
 
   return (
     <AuthShell

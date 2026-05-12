@@ -54,8 +54,8 @@ export function MonthlyChart({ data }: { data: { week: string; completions: numb
         <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
         <XAxis dataKey="week" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
         <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
-        <Tooltip {...chartTooltip} />
-        <Bar dataKey="completions" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+        <Tooltip {...chartTooltip} cursor={{ fill: 'hsl(var(--primary))', fillOpacity: 0.08 }} />
+        <Bar dataKey="completions" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} minPointSize={0} isAnimationActive={false} />
       </BarChart>
     </ResponsiveContainer>
   );
