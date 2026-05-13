@@ -63,7 +63,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthShell
+    <div className='atomic-age'><AuthShell
       title="Create your account"
       subtitle="Start your first streak in under 60 seconds."
       footer={
@@ -100,6 +100,6 @@ export default function RegisterPage() {
           Create account
         </Button>
       </form>
-    </AuthShell>
+    </AuthShell></div>
   );
 }

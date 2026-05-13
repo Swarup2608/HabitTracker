@@ -3,7 +3,6 @@
 import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Spline from "@splinetool/react-spline";
 import { cn } from "@/lib/utils";
 
 if (typeof window !== "undefined") {
@@ -47,7 +46,7 @@ const INJECTED_STYLES = `
   }
 
   .text-card-silver-matte {
-      background: linear-gradient(180deg, #FFFFFF 0%, #A1A1AA 100%);
+background: linear-gradient(180deg, #FFFFFF 0%, #A1A1AA 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -58,7 +57,7 @@ const INJECTED_STYLES = `
   }
 
   .premium-depth-card {
-      background: linear-gradient(145deg, #4C1D95 0%, #1E1B4B 50%, #0B0716 100%);
+background: linear-gradient(145deg, #4C1D95 0%, #1E1B4B 50%, #0B0716 100%);
       box-shadow:
           0 40px 100px -20px rgba(0, 0, 0, 0.9),
           0 20px 40px -20px rgba(0, 0, 0, 0.8),
@@ -156,6 +155,44 @@ const INJECTED_STYLES = `
       stroke-dasharray: 402;
       stroke-dashoffset: 402;
       stroke-linecap: round;
+  }
+
+  .scene-bg {
+      position: absolute; inset: 0;
+      background:
+          radial-gradient(60% 50% at 18% 20%, hsl(var(--primary) / 0.55) 0%, transparent 60%),
+          radial-gradient(55% 45% at 82% 28%, hsl(var(--secondary) / 0.45) 0%, transparent 65%),
+          radial-gradient(70% 60% at 50% 100%, hsl(var(--accent) / 0.55) 0%, transparent 65%),
+          radial-gradient(40% 40% at 75% 75%, hsl(var(--primary) / 0.35) 0%, transparent 70%),
+          hsl(var(--background));
+      filter: saturate(1.15);
+  }
+  .scene-bg::before, .scene-bg::after {
+      content: ''; position: absolute; inset: -20%;
+      background: inherit;
+      mix-blend-mode: screen;
+      opacity: 0.7;
+      animation: scene-drift-1 22s ease-in-out infinite alternate;
+      will-change: transform;
+  }
+  .scene-bg::after {
+      animation: scene-drift-2 28s ease-in-out infinite alternate;
+      opacity: 0.5;
+      filter: blur(40px);
+  }
+  @keyframes scene-drift-1 {
+      0%   { transform: translate3d(-3%, -2%, 0) scale(1.05) rotate(0deg); }
+      100% { transform: translate3d(3%, 4%, 0) scale(1.15) rotate(8deg); }
+  }
+  @keyframes scene-drift-2 {
+      0%   { transform: translate3d(4%, 3%, 0) scale(1.1) rotate(0deg); }
+      100% { transform: translate3d(-4%, -3%, 0) scale(1.2) rotate(-10deg); }
+  }
+  .scene-vignette {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+          linear-gradient(to right, hsl(var(--background) / 0.7), transparent 22%, transparent 78%, hsl(var(--background) / 0.7)),
+          linear-gradient(to bottom, hsl(var(--background) / 0.25) 0%, transparent 35%, hsl(var(--background) / 0.85) 100%);
   }
 `;
 
@@ -370,32 +407,9 @@ export function CinematicHero({
     >
       <style dangerouslySetInnerHTML={{ __html: INJECTED_STYLES }} />
       <div className="film-grain" aria-hidden="true" />
-      <div className="absolute inset-0 z-0 pointer-events-none" style={{ background: "#05020F" }} aria-hidden="true">
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "auto" }}>
-          <Spline
-            style={{ width: "100%", height: "100%" }}
-            scene="https://prod.spline.design/dJqTIQ-tE3ULUPMi/scene.splinecode"
-          />
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              right: 0,
-              bottom: 0,
-              width: "200px",
-              height: "60px",
-              background: "#05020F",
-              pointerEvents: "auto",
-            }}
-          />
-        </div>
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(to right, rgba(0,0,0,0.7), transparent 22%, transparent 78%, rgba(0,0,0,0.7)), linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 35%, rgba(0,0,0,0.85) 100%)",
-          }}
-        />
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div className="scene-bg" />
+        <div className="scene-vignette" />
       </div>
       <div className="bg-grid-theme absolute inset-0 z-[1] pointer-events-none opacity-30" aria-hidden="true" />
 

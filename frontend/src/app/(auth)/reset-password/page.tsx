@@ -44,8 +44,8 @@ function ResetForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="space-y-1.5">
+   <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="space-y-1.5 hidden">
         <Label htmlFor="token">Reset token</Label>
         <Input id="token" {...register('token')} />
       </div>
@@ -66,7 +66,7 @@ function ResetForm() {
 
 export default function ResetPage() {
   return (
-    <AuthShell
+     <div className='atomic-age'><AuthShell
       title="Set a new password"
       subtitle="Enter the token from your email and a new password."
       footer={
@@ -78,6 +78,6 @@ export default function ResetPage() {
       <Suspense fallback={null}>
         <ResetForm />
       </Suspense>
-    </AuthShell>
+    </AuthShell></div>
   );
 }

@@ -36,7 +36,7 @@ export default function ForgotPage() {
   };
 
   return (
-    <AuthShell
+    <div className='atomic-age'><AuthShell
       title="Reset your password"
       subtitle="Enter your email and we'll send you a reset link."
       footer={
@@ -56,6 +56,6 @@ export default function ForgotPage() {
           Send reset link
         </Button>
       </form>
-    </AuthShell>
+    </AuthShell></div>
   );
 }

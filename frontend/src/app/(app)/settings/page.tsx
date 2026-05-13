@@ -1,29 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Moon, Sun, Sword, Sprout, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/stores/theme';
 import { useAuth } from '@/stores/auth';
 import { api, apiError } from '@/lib/api';
 import type { ThemeMode } from '@/lib/types';
-import { cn } from '@/lib/utils';
-
-const THEMES: { id: ThemeMode; title: string; subtitle: string; icon: React.ElementType; gradient: string }[] = [
-  { id: 'dark', title: 'Dark', subtitle: 'Default. Calm focus.', icon: Moon, gradient: 'from-zinc-700 to-zinc-900' },
-  { id: 'light', title: 'Light', subtitle: 'Crisp daytime mode.', icon: Sun, gradient: 'from-amber-100 to-rose-100' },
-  { id: 'gaming', title: 'Gaming', subtitle: 'Neon. XP bars. Glow.', icon: Sword, gradient: 'from-cyan-500 to-fuchsia-600' },
-  { id: 'fantasy', title: 'Fantasy', subtitle: 'Calm, nature, poetic.', icon: Sprout, gradient: 'from-emerald-400 to-amber-300' },
-];
+import { ThemeModePicker } from '@/components/ui/ThemeModePicker';
 
 export default function SettingsPage() {
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
   const user = useAuth((s) => s.user);
   const setUser = useAuth((s) => s.setUser);
   const [username, setUsername] = useState(user?.username ?? '');
@@ -90,29 +81,8 @@ export default function SettingsPage() {
           <CardTitle>Theme</CardTitle>
           <CardDescription>Pick the world your habits live in.</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {THEMES.map((t) => {
-            const active = theme === t.id;
-            return (
-              <motion.button
-                key={t.id}
-                whileHover={{ y: -3 }}
-                onClick={() => pickTheme(t.id)}
-                className={cn(
-                  'group relative overflow-hidden rounded-2xl border p-4 text-left transition-colors',
-                  active ? 'border-primary ring-2 ring-primary/40' : 'border-border/60 hover:border-border'
-                )}
-              >
-                <div className={cn('absolute inset-0 bg-gradient-to-br opacity-30 transition-opacity group-hover:opacity-50', t.gradient)} />
-                <div className="relative flex items-center justify-between">
-                  <t.icon className="h-5 w-5" />
-                  {active && <Badge>Active</Badge>}
-                </div>
-                <div className="relative mt-3 font-semibold">{t.title}</div>
-                <div className="relative text-xs text-muted-foreground">{t.subtitle}</div>
-              </motion.button>
-            );
-          })}
+        <CardContent>
+          <ThemeModePicker className="grid grid-cols-2 gap-3 md:grid-cols-4" />
         </CardContent>
       </Card>
 

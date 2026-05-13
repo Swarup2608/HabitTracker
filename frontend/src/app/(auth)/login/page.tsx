@@ -57,7 +57,7 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthShell
+    <div className='atomic-age'><AuthShell
       title="Welcome back"
       subtitle="Sign in to continue your streak."
       footer={
@@ -91,6 +91,6 @@ export default function LoginPage() {
           </Link>
         </div>
       </form>
-    </AuthShell>
+    </AuthShell></div>
   );
 }
