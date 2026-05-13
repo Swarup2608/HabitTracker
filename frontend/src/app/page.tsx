@@ -29,7 +29,7 @@ export default function Home() {
 
   return (
     <>
-      {!loading && <TopNav />}
+      <div className="md:block hidden">{!loading && <TopNav />}</div>
       <div className="overflow-x-hidden w-full min-h-screen relative pointer-events-none atomic-age">
         <CinematicHero
           brandName="Tally"
