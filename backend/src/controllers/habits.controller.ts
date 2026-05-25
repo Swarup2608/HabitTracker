@@ -169,9 +169,65 @@ export async function logs(req: Request, res: Response) {
   res.json({ items, page, limit, total, hasMore: skip + items.length < total });
 }
 
+export async function calendar(req: Request, res: Response) {
+  const { id } = req.params;
+  const { year, month } = req.query as unknown as { year: number; month: number };
+
+  if (!Types.ObjectId.isValid(id)) throw new ApiError(400, 'Invalid habit id');
+  const habit = await Habit.findOne({ _id: id, user: req.user!.sub }).select('_id startedAt').lean();
+  if (!habit) throw new ApiError(404, 'Habit not found');
+
+  const monthStart = dayjs.utc(`${year}-${String(month).padStart(2, '0')}-01`).startOf('month');
+  const monthEnd = monthStart.endOf('month');
+  const logs = await HabitLog.find({
+    habit: habit._id,
+    dayKey: {
+      $gte: monthStart.format('YYYY-MM-DD'),
+      $lte: monthEnd.format('YYYY-MM-DD'),
+    },
+  })
+    .sort({ dayKey: 1 })
+    .select('_id dayKey completed minutes mood energy notes feedback xpAwarded')
+    .lean();
+
+  const byDay = new Map(logs.map((log) => [log.dayKey, log]));
+  const days = Array.from({ length: monthEnd.date() }, (_, index) => {
+    const key = monthStart.add(index, 'day').format('YYYY-MM-DD');
+    const log = byDay.get(key);
+    return {
+      day: key,
+      count: log?.completed ? 1 : 0,
+      log: log
+        ? {
+            _id: log._id,
+            dayKey: log.dayKey,
+            completed: log.completed,
+            minutes: log.minutes,
+            mood: log.mood,
+            energy: log.energy,
+            notes: log.notes,
+            feedback: log.feedback,
+            xpAwarded: log.xpAwarded,
+          }
+        : null,
+    };
+  });
+
+  res.json({
+    year,
+    month,
+    startDay: monthStart.format('YYYY-MM-DD'),
+    endDay: monthEnd.format('YYYY-MM-DD'),
+    startedAt: dayKey(habit.startedAt),
+    today: dayKey(),
+    days,
+  });
+}
+
 export async function updateLog(req: Request, res: Response) {
   const { id, logId } = req.params;
-  const habit = await Habit.findOne({ _id: id, user: req.user!.sub }).lean();
+  const userId = req.user!.sub;
+  const habit = await Habit.findOne({ _id: id, user: userId }).lean();
   if (!habit) throw new ApiError(404, 'Habit not found');
   const log = await HabitLog.findOneAndUpdate(
     { _id: logId, habit: habit._id },
@@ -179,6 +235,10 @@ export async function updateLog(req: Request, res: Response) {
     { new: true }
   );
   if (!log) throw new ApiError(404, 'Log not found');
+
+  await recomputeHabitStats(habit._id.toString(), userId);
+  await invalidateDash(userId);
+
   res.json({ log });
 }
 

@@ -36,7 +36,7 @@ const habitSchema = new Schema<IHabit>(
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     name: { type: String, required: true, trim: true, maxlength: 80 },
     description: { type: String, maxlength: 500 },
-    icon: { type: String, default: 'Sparkles' },
+    icon: { type: String, default: '', maxlength: 5 },
     color: { type: String, default: '#8b5cf6' },
     category: { type: String, default: 'general' },
     difficulty: { type: String, enum: ['easy', 'medium', 'hard', 'epic'], default: 'medium' },

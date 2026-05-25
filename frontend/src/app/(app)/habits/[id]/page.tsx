@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -13,8 +13,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CompleteDialog } from '@/components/habits/CompleteDialog';
+import { HabitMonthHeatmap } from '@/components/habits/HabitMonthHeatmap';
 import { formatRelativeDay } from '@/lib/utils';
 import type { HabitLog } from '@/lib/types';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 const INSIGHTS = [
   'Small reps, repeated, beat heroic single days.',
@@ -35,16 +37,48 @@ const todayKey = () => new Date().toISOString().slice(0, 10);
 export default function HabitDetailsPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
-  const [page, setPage] = useState(1);
   const { data: habit, isLoading } = useHabit(id);
-  const { data: logs, isFetching } = useHabitLogs(id, page, 20);
+  const {
+    data: logsData,
+    isFetching,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useHabitLogs(id, 20);
   const updateHabit = useUpdateHabit();
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  const allLogs = useMemo(
+    () => logsData?.pages.flatMap((p) => p.items) ?? [],
+    [logsData]
+  );
+  const totalLogs = logsData?.pages[0]?.total ?? 0;
+
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage) return;
+    const node = loadMoreRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first?.isIntersecting) {
+          fetchNextPage();
+        }
+      },
+      { rootMargin: '220px 0px' }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   const [completeOpen, setCompleteOpen] = useState(false);
   const [completeDate, setCompleteDate] = useState<string | undefined>();
   const [editingStartedAt, setEditingStartedAt] = useState(false);
   const [startedDraft, setStartedDraft] = useState('');
   const [startedErr, setStartedErr] = useState<string | null>(null);
+  const [startDateConfirmOpen, setStartDateConfirmOpen] = useState(false);
 
   if (isLoading || !habit) {
     return (
@@ -68,13 +102,10 @@ export default function HabitDetailsPage() {
       setEditingStartedAt(false);
       return;
     }
-    if (
-      !confirm(
-        'Changing the start date will discard logs from before that date. Continue?'
-      )
-    ) {
-      return;
-    }
+    setStartDateConfirmOpen(true);
+  };
+
+  const doSaveStartedAt = async () => {
     try {
       await updateHabit.mutateAsync({ id: habit._id, startedAt: startedDraft });
       setEditingStartedAt(false);
@@ -180,7 +211,7 @@ export default function HabitDetailsPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
         <Stat title="Streak" value={`${habit.currentStreak}d`} icon={<Flame className="h-4 w-4 text-amber-400" />} />
         <Stat title="Longest" value={`${habit.longestStreak}d`} />
         <Stat title="XP earned" value={habit.xpEarned} icon={<Zap className="h-4 w-4 text-primary" />} />
@@ -203,31 +234,66 @@ export default function HabitDetailsPage() {
         </CardContent>
       </Card>
 
+      <HabitMonthHeatmap habit={habit} variant="detail" />
+
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Daily timeline</CardTitle>
             <CardDescription>Day-by-day history. Click a row to edit notes.</CardDescription>
           </div>
-          <div className="text-xs text-muted-foreground">{logs?.total ?? 0} entries</div>
+          <div className="text-xs text-muted-foreground">{totalLogs} entries</div>
         </CardHeader>
         <CardContent className="space-y-2">
-          {logs?.items.length === 0 && (
+          {allLogs.length === 0 && (
             <p className="text-sm text-muted-foreground">
               No completions yet. Mark today complete or log a past day.
             </p>
           )}
-          {logs?.items.map((l, idx) => (
+          {allLogs.map((l, idx) => (
             <LogRow key={l._id} habitId={habit._id} log={l} index={idx} />
           ))}
 
-          {logs && logs.hasMore && (
+          {hasNextPage && (
             <div className="flex justify-center pt-2">
-              <Button variant="outline" onClick={() => setPage((p) => p + 1)} loading={isFetching}>
+              <Button variant="outline" onClick={() => fetchNextPage()} loading={isFetchingNextPage || isFetching}>
                 Load more
               </Button>
             </div>
           )}
+          <div ref={loadMoreRef} className="h-1" aria-hidden="true" />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Log Grid View</CardTitle>
+          <CardDescription>Visual timeline grid with {totalLogs} completions.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {allLogs.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              No completions yet. Mark today complete or log a past day.
+            </p>
+          )}
+          {allLogs.length > 0 && (
+            <>
+              <div className="rounded-lg border border-border/40 bg-muted/10 p-3 sm:p-4">
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 md:grid-cols-8 lg:grid-cols-12 2xl:grid-cols-15">
+                {allLogs.map((l, idx) => (
+                  <LogGridItem key={l._id} log={l} index={idx} />
+                ))}
+              </div>              </div>            </>
+          )}
+
+          {hasNextPage && (
+            <div className="flex justify-center pt-4">
+              <Button variant="outline" onClick={() => fetchNextPage()} loading={isFetchingNextPage || isFetching}>
+                Load more logs
+              </Button>
+            </div>
+          )}
+          <div ref={loadMoreRef} className="h-1" aria-hidden="true" />
         </CardContent>
       </Card>
 
@@ -236,6 +302,15 @@ export default function HabitDetailsPage() {
         open={completeOpen}
         onOpenChange={setCompleteOpen}
         defaultDate={completeDate}
+      />
+      <ConfirmDialog
+        open={startDateConfirmOpen}
+        onOpenChange={setStartDateConfirmOpen}
+        onConfirm={doSaveStartedAt}
+        title="Change start date"
+        description="Changing the start date will discard logs from before that date. Continue?"
+        confirmLabel="Continue"
+        variant="default"
       />
     </div>
   );
@@ -253,6 +328,25 @@ function Stat({ title, value, icon }: { title: string; value: string | number; i
   );
 }
 
+function LogGridItem({ log, index }: { log: HabitLog; index: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: index * 0.01 }}
+      className="group flex flex-col items-center justify-center rounded-lg border border-border/60 bg-card/40 p-2 hover:bg-card/80 transition-colors cursor-pointer aspect-square"
+      title={`${formatRelativeDay(log.dayKey)} - ${log.minutes}m`}
+    >
+      <div className="text-lg font-bold text-emerald-400">✓</div>
+      <div className="mt-1 text-center">
+        <div className="text-[10px] font-medium text-muted-foreground">{log.dayKey.split('-')[2]}</div>
+        {log.mood && <div className="text-sm" title={log.mood}>{MOOD_EMOJI[log.mood]}</div>}
+        {typeof log.energy === 'number' && <div className="text-[9px] text-muted-foreground">⚡{log.energy}</div>}
+      </div>
+    </motion.div>
+  );
+}
+
 function LogRow({ habitId, log, index }: { habitId: string; log: HabitLog; index: number }) {
   const update = useUpdateLog(habitId);
   const remove = useDeleteLog(habitId);
@@ -260,6 +354,7 @@ function LogRow({ habitId, log, index }: { habitId: string; log: HabitLog; index
   const [draft, setDraft] = useState(log.notes ?? '');
   const [mood, setMood] = useState<Mood | undefined>(log.mood as Mood | undefined);
   const [energy, setEnergy] = useState<number | undefined>(log.energy);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const startEdit = () => {
     setDraft(log.notes ?? '');
@@ -369,11 +464,7 @@ function LogRow({ habitId, log, index }: { habitId: string; log: HabitLog; index
             <Pencil className="h-3.5 w-3.5" />
           </button>
           <button
-            onClick={() => {
-              if (confirm('Delete this log entry? Streak and XP will recompute.')) {
-                remove.mutate(log._id);
-              }
-            }}
+            onClick={() => setDeleteConfirmOpen(true)}
             className="rounded-md p-1.5 text-muted-foreground hover:bg-destructive/15 hover:text-destructive"
             aria-label="Delete log"
           >
@@ -381,6 +472,14 @@ function LogRow({ habitId, log, index }: { habitId: string; log: HabitLog; index
           </button>
         </div>
       )}
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        onConfirm={() => remove.mutate(log._id)}
+        title="Delete log entry"
+        description="Delete this log entry? Streak and XP will recompute."
+        confirmLabel="Delete"
+      />
     </motion.div>
   );
 }

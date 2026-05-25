@@ -7,6 +7,10 @@ interface ThemeState {
 }
 
 const STORAGE_KEY = 'tracker_theme';
+const THEMES: ThemeMode[] = ['dark', 'gaming', 'fantasy'];
+
+const normalizeTheme = (t: string | null): ThemeMode =>
+  THEMES.includes(t as ThemeMode) ? (t as ThemeMode) : 'dark';
 
 const apply = (t: ThemeMode) => {
   if (typeof document === 'undefined') return;
@@ -14,7 +18,7 @@ const apply = (t: ThemeMode) => {
 };
 
 export const useTheme = create<ThemeState>((set) => ({
-  theme: (typeof window !== 'undefined' && (localStorage.getItem(STORAGE_KEY) as ThemeMode)) || 'dark',
+  theme: typeof window !== 'undefined' ? normalizeTheme(localStorage.getItem(STORAGE_KEY)) : 'dark',
   setTheme: (t) => {
     apply(t);
     if (typeof window !== 'undefined') localStorage.setItem(STORAGE_KEY, t);
@@ -24,6 +28,7 @@ export const useTheme = create<ThemeState>((set) => ({
 
 export const initTheme = () => {
   if (typeof document === 'undefined') return;
-  const stored = (localStorage.getItem(STORAGE_KEY) as ThemeMode) || 'dark';
+  const stored = normalizeTheme(localStorage.getItem(STORAGE_KEY));
+  localStorage.setItem(STORAGE_KEY, stored);
   apply(stored);
 };

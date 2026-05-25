@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { User } from '@/lib/types';
-import { api, setAccessToken } from '@/lib/api';
+import { api, setAccessToken, fetchCsrfToken } from '@/lib/api';
 
 interface AuthState {
   user: User | null;
@@ -17,6 +17,9 @@ export const useAuth = create<AuthState>((set) => ({
   loading: true,
   hydrate: async () => {
     try {
+      // Fetch CSRF token first
+      await fetchCsrfToken();
+      
       const res = await api.get('/users/me');
       set({ user: res.data.user, loading: false });
     } catch {

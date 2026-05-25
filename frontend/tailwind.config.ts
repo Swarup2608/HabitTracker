@@ -44,6 +44,9 @@ const config: Config = {
         shimmer: 'shimmer 2s linear infinite',
         float: 'float 3s ease-in-out infinite',
       },
+      gridTemplateColumns: {
+        '15': 'repeat(15, minmax(0, 1fr))',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

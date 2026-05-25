@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { Toaster } from 'react-hot-toast';
 import { initTheme } from '@/stores/theme';
 import { useAuth } from '@/stores/auth';
 import { useAchievementQueue } from '@/stores/achievements';
@@ -53,6 +54,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       {children}
       <AchievementChecker />
       <AchievementPopup />
+      <Toaster position="top-right" toastOptions={{ duration: 3500 }} />
     </QueryClientProvider>
   );
 }

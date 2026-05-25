@@ -17,6 +17,14 @@ export const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+export const verifyEmailSchema = z.object({
+  token: z.string().min(10, 'Invalid verification token'),
+});
+
+export const resendVerificationSchema = z.object({
+  email: z.string().email().toLowerCase(),
+});
+
 export const forgotSchema = z.object({
   email: z.string().email().toLowerCase(),
 });

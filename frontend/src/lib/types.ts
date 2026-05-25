@@ -1,4 +1,4 @@
-export type ThemeMode = 'light' | 'dark' | 'gaming' | 'fantasy';
+export type ThemeMode = 'dark' | 'gaming' | 'fantasy';
 
 export interface User {
   _id: string;
@@ -57,6 +57,22 @@ export interface HabitLog {
   notes?: string;
   feedback?: string;
   xpAwarded: number;
+}
+
+export interface HabitCalendarDay {
+  day: string;
+  count: number;
+  log: (Omit<HabitLog, 'habit' | 'date'> & { dayKey: string }) | null;
+}
+
+export interface HabitCalendarMonth {
+  year: number;
+  month: number;
+  startDay: string;
+  endDay: string;
+  startedAt: string;
+  today: string;
+  days: HabitCalendarDay[];
 }
 
 export interface Todo {

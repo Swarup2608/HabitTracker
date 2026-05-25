@@ -19,7 +19,7 @@ export function Progress({
         animate={{ width: `${Math.max(0, Math.min(100, value))}%` }}
         transition={{ type: 'spring', stiffness: 60, damping: 18 }}
         className={cn(
-          'h-full bg-gradient-to-r from-primary to-secondary',
+          'h-full bg-primary',
           glow && 'shadow-[0_0_18px_hsl(var(--primary)/0.7)]'
         )}
       />

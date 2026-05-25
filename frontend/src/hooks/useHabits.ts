@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import type { Habit, HabitLog } from '@/lib/types';
+import type { Habit, HabitCalendarMonth, HabitLog } from '@/lib/types';
 import { useAchievementQueue } from '@/stores/achievements';
 
 export interface UnlockedAchievement {
@@ -39,13 +39,31 @@ export function useHabit(id: string) {
   });
 }
 
-export function useHabitLogs(id: string, page = 1, limit = 20) {
-  return useQuery({
-    queryKey: ['habit-logs', id, page, limit],
-    queryFn: async () =>
+export function useHabitLogs(id: string, limit = 20) {
+  return useInfiniteQuery({
+    queryKey: ['habit-logs', id, limit],
+    queryFn: async ({ pageParam = 1 }) =>
       (
         await api.get<{ items: HabitLog[]; total: number; hasMore: boolean }>(
-          `/habits/${id}/logs?page=${page}&limit=${limit}`
+          `/habits/${id}/logs?page=${pageParam}&limit=${limit}`
+        )
+      ).data,
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage.hasMore) return undefined;
+      return allPages.length + 1;
+    },
+    initialPageParam: 1,
+    enabled: !!id,
+  });
+}
+
+export function useHabitCalendar(id: string, year: number, month: number) {
+  return useQuery({
+    queryKey: ['habit-calendar', id, year, month],
+    queryFn: async () =>
+      (
+        await api.get<HabitCalendarMonth>(
+          `/habits/${id}/calendar?year=${year}&month=${month}`
         )
       ).data,
     enabled: !!id,
@@ -77,6 +95,7 @@ export function useUpdateHabit() {
       qc.invalidateQueries({ queryKey: ['habits'] });
       qc.invalidateQueries({ queryKey: ['habit', vars.id] });
       qc.invalidateQueries({ queryKey: ['habit-logs', vars.id] });
+      qc.invalidateQueries({ queryKey: ['habit-calendar', vars.id] });
       qc.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
@@ -116,6 +135,7 @@ export function useCompleteHabit() {
       qc.invalidateQueries({ queryKey: ['habits'] });
       qc.invalidateQueries({ queryKey: ['habit', vars.id] });
       qc.invalidateQueries({ queryKey: ['habit-logs', vars.id] });
+      qc.invalidateQueries({ queryKey: ['habit-calendar', vars.id] });
       qc.invalidateQueries({ queryKey: ['dashboard'] });
       enqueueAchievements(data.unlockedAchievements);
     },
@@ -138,6 +158,10 @@ export function useUpdateLog(habitId: string) {
     }) => (await api.patch(`/habits/${habitId}/logs/${logId}`, input)).data,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['habit-logs', habitId] });
+      qc.invalidateQueries({ queryKey: ['habit-calendar', habitId] });
+      qc.invalidateQueries({ queryKey: ['habit', habitId] });
+      qc.invalidateQueries({ queryKey: ['habits'] });
+      qc.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -148,6 +172,7 @@ export function useDeleteLog(habitId: string) {
     mutationFn: async (logId: string) => (await api.delete(`/habits/${habitId}/logs/${logId}`)).data,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['habit-logs', habitId] });
+      qc.invalidateQueries({ queryKey: ['habit-calendar', habitId] });
       qc.invalidateQueries({ queryKey: ['habit', habitId] });
       qc.invalidateQueries({ queryKey: ['habits'] });
       qc.invalidateQueries({ queryKey: ['dashboard'] });

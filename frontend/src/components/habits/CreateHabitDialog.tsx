@@ -24,6 +24,7 @@ import { HABIT_CATEGORIES } from '@/lib/categories';
 const schema = z.object({
   name: z.string().min(1).max(80),
   description: z.string().max(500).optional(),
+  icon: z.string().max(5).optional(),
   categoryKey: z.string().min(1),
   categoryOther: z.string().max(40).optional(),
   category: z.string().optional(),
@@ -97,6 +98,10 @@ export function CreateHabitDialog() {
             <Label htmlFor="description">Description</Label>
             <Textarea id="description" placeholder="Why does this matter to you?" {...register('description')} />
           </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="icon">Icon (emoji or keyboard symbol)</Label>
+              <Input id="icon" placeholder="e.g., 🏃 or ⚡ or 🎯" maxLength={5} {...register('icon')} />
+            </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Category</Label>

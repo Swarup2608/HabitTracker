@@ -82,7 +82,7 @@ export default function SettingsPage() {
           <CardDescription>Pick the world your habits live in.</CardDescription>
         </CardHeader>
         <CardContent>
-          <ThemeModePicker className="grid grid-cols-2 gap-3 md:grid-cols-4" />
+          <ThemeModePicker className="grid grid-cols-1 gap-3 sm:grid-cols-3" />
         </CardContent>
       </Card>
 

@@ -17,7 +17,7 @@ interface IconProps {
 const iconMap: Record<string, React.ComponentType<IconProps>> = {
   Sparkles: Icons.Sparkles,
   Flame: Icons.Flame,
-  Fire: Icons.Fire,
+  Fire: Icons.Flame,
   Zap: Icons.Zap,
   Crown: Icons.Crown,
   Star: Icons.Star,

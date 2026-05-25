@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import { ApiError } from '../utils/ApiError';
+import { logger } from '../utils/logger';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
@@ -16,8 +17,10 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
       details: (err as unknown as { keyValue?: unknown }).keyValue,
     });
   }
-  // eslint-disable-next-line no-console
-  console.error(err);
+  
+  // Log unexpected errors
+  logger.error(`Unexpected error: ${err instanceof Error ? err.message : String(err)}`);
+  
   return res.status(500).json({ error: 'Internal server error' });
 }
 

@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const habitCreateSchema = z.object({
   name: z.string().min(1).max(80),
   description: z.string().max(500).optional(),
-  icon: z.string().default('Sparkles'),
+  icon: z.string().max(5).optional(),
   color: z.string().default('#8b5cf6'),
   category: z.string().default('general'),
   difficulty: z.enum(['easy', 'medium', 'hard', 'epic']).default('medium'),
@@ -43,4 +43,9 @@ export const logUpdateSchema = z.object({
 export const logsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(60).default(20),
+});
+
+export const calendarQuerySchema = z.object({
+  year: z.coerce.number().int().min(1970).max(2100),
+  month: z.coerce.number().int().min(1).max(12),
 });

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import type { ElementType } from 'react';
-import { Moon, Sun, Sword, Sprout } from 'lucide-react';
+import { Moon, Sword, Sprout } from 'lucide-react';
 import { useTheme } from '@/stores/theme';
 import type { ThemeMode } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 
 const THEMES: { id: ThemeMode; title: string; subtitle: string; icon: ElementType; gradient: string }[] = [
   { id: 'dark', title: 'Dark', subtitle: 'Calm focus', icon: Moon, gradient: 'from-zinc-700 to-zinc-900' },
-  { id: 'light', title: 'Light', subtitle: 'Daytime clarity', icon: Sun, gradient: 'from-amber-100 to-rose-100' },
   { id: 'gaming', title: 'Gaming', subtitle: 'Neon, glow, XP', icon: Sword, gradient: 'from-cyan-500 to-fuchsia-600' },
   { id: 'fantasy', title: 'Fantasy', subtitle: 'Calm, nature, poetic', icon: Sprout, gradient: 'from-emerald-400 to-amber-300' },
 ];
@@ -29,7 +28,7 @@ export function ThemeModePicker({ className, onSelect }: ThemeModePickerProps) {
   };
 
   return (
-    <div className={cn('grid gap-3 sm:grid-cols-2 xl:grid-cols-4', className)}>
+    <div className={cn('grid gap-3 sm:grid-cols-3', className)}>
       {THEMES.map((mode) => {
         const Icon = mode.icon;
         const active = theme === mode.id;
@@ -60,4 +59,3 @@ export function ThemeModePicker({ className, onSelect }: ThemeModePickerProps) {
     </div>
   );
 }
-

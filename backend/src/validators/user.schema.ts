@@ -10,7 +10,7 @@ export const userUpdateSchema = z.object({
   email: z.string().email().toLowerCase().optional(),
   avatarUrl: z.string().url().optional(),
   timezone: z.string().optional(),
-  theme: z.enum(['light', 'dark', 'gaming', 'fantasy']).optional(),
+  theme: z.enum(['dark', 'gaming', 'fantasy']).optional(),
   notifications: z
     .object({
       email: z.boolean().optional(),
