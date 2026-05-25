@@ -8,8 +8,7 @@
     "backend": {
       "root": "backend",
       "routePrefix": "/_/backend",
-      "buildCommand": "npm run build",
-      "entrypoint": "dist/index.js"
+      "entrypoint": "src/server.ts"
     }
   }
 }
