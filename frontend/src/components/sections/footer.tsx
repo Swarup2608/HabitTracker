@@ -5,8 +5,8 @@ export function Footer() {
     <footer className="relative py-16 px-6 bg-muted/40 border-t border-border">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
         <div>
-          <div className="text-2xl font-black tracking-tighter mb-2 fredericka-the-great">TA LLY</div>
-          <p className="text-sm text-muted-foreground">Small habits. Compounding wins.</p>
+          <div className="text-2xl font-black tracking-tighter mb-2 fredericka-the-great">Loop Atom</div>
+          <p className="text-sm text-muted-foreground">Small loops. Massive changes.</p>
         </div>
         <nav className="flex flex-wrap gap-6 text-sm text-muted-foreground">
           <a href="#" className="hover:text-foreground transition-colors">Features</a>
@@ -21,7 +21,7 @@ export function Footer() {
         </div>
       </div>
       <div className="max-w-6xl mx-auto mt-12 pt-8 border-t border-border text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Tally. All rights reserved.
+        © {new Date().getFullYear()} Loop Atom. All rights reserved.
       </div>
     </footer>
   );

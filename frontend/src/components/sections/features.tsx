@@ -14,12 +14,12 @@ export function Features() {
     <section id="features" className="relative py-32 px-6 bg-background">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-20">
-          <p className="text-sm font-semibold tracking-[0.2em] text-muted-foreground uppercase mb-4">Why Tally</p>
+          <p className="text-sm font-semibold tracking-[0.2em] text-muted-foreground uppercase mb-4">Why Loop Atom</p>
           <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
             Built for the <span className="italic font-light">long</span> game.
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Habits aren't sprints. Tally gives you the calm, durable tools to compound small actions into a life you're proud of.
+            Habits aren't sprints. Loop Atom gives you the calm, durable tools to compound small actions into a life you're proud of.
           </p>
         </div>
 

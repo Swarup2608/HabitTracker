@@ -28,7 +28,7 @@ export function Sidebar() {
         <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground shadow-lg shadow-primary/30">
           <Sparkles className="h-4 w-4" />
         </span>
-        Tracker
+        Loop Atom
       </Link>
 
       <nav className="mt-8 flex flex-col gap-1">

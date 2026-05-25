@@ -4,7 +4,7 @@ const steps = [
   {
     n: "01",
     title: "Pick a habit that matters.",
-    desc: "Read 20 minutes. Walk 10k steps. Call mom on Sunday. Start small — Tally is built to make small things stick.",
+    desc: "Read 20 minutes. Walk 10k steps. Call mom on Sunday. Start small — Loop Atom is built to make small things stick.",
     img: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=1200&q=80",
   },
   {

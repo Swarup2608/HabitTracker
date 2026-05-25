@@ -12,8 +12,16 @@ declare global {
 }
 
 export function requireAuth(req: Request, _res: Response, next: NextFunction) {
-  const header = req.headers.authorization;
-  const token = header?.startsWith('Bearer ') ? header.slice(7) : undefined;
+  // Extract token from httpOnly cookie (primary) or Authorization header (fallback for compatibility)
+  const ACCESS_COOKIE = 'tracker_at';
+  let token = req.cookies?.[ACCESS_COOKIE];
+  
+  // Fallback to Authorization header for API clients without cookie support
+  if (!token) {
+    const header = req.headers.authorization;
+    token = header?.startsWith('Bearer ') ? header.slice(7) : undefined;
+  }
+  
   if (!token) return next(new ApiError(401, 'Unauthorized'));
   try {
     req.user = verifyAccess(token);

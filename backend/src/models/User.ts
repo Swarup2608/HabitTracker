@@ -14,11 +14,6 @@ export interface IUser extends Document {
   notifications: { email: boolean; push: boolean; daily: boolean };
   xp: number;
   level: number;
-  emailVerified: boolean;
-  emailVerificationToken?: string;
-  emailVerificationExpiresAt?: Date;
-  resetTokenHash?: string;
-  resetTokenExpiresAt?: Date;
   failedLoginAttempts: number;
   lockedUntil?: Date;
   createdAt: Date;
@@ -41,11 +36,6 @@ const userSchema = new Schema<IUser>(
     },
     xp: { type: Number, default: 0, min: 0 },
     level: { type: Number, default: 1, min: 1 },
-    emailVerified: { type: Boolean, default: false, index: true },
-    emailVerificationToken: String,
-    emailVerificationExpiresAt: Date,
-    resetTokenHash: String,
-    resetTokenExpiresAt: Date,
     failedLoginAttempts: { type: Number, default: 0 },
     lockedUntil: Date,
   },
@@ -60,10 +50,6 @@ userSchema.set('toJSON', {
   transform: (_doc, ret) => {
     const r = ret as unknown as Record<string, unknown>;
     delete r.passwordHash;
-    delete r.resetTokenHash;
-    delete r.resetTokenExpiresAt;
-    delete r.emailVerificationToken;
-    delete r.emailVerificationExpiresAt;
     delete r.failedLoginAttempts;
     delete r.lockedUntil;
     delete r.__v;

@@ -37,7 +37,7 @@ function ThemeDrawer() {
               <DialogPrimitive.Title className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">Theme modes</DialogPrimitive.Title>
               <h2 className="mt-2 text-2xl font-semibold text-foreground sm:text-3xl">Pick your home page world</h2>
               <DialogPrimitive.Description className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                Switch instantly between Dark, Light, Gaming, and Fantasy modes and see how Tally adapts before you sign in.
+                Switch instantly between Dark, Light, Gaming, and Fantasy modes and see how Loop Atom adapts before you sign in.
               </DialogPrimitive.Description>
             </div>
             <DialogPrimitive.Close
@@ -78,19 +78,19 @@ export default function Home() {
       <div className="md:block hidden">{!loading && <TopNav />}</div>
       <div className="overflow-x-hidden w-full min-h-screen relative pointer-events-none atomic-age">
         <CinematicHero
-          brandName="Tally"
+          brandName="Loop Atom"
           tagline1="Count what counts,"
           tagline2="every single day."
           cardHeading="Small habits, serious momentum."
           cardDescription={
             <>
-              <span className="text-white font-semibold">Tally</span> turns daily habits into visible streaks, so showing up tomorrow feels easier than skipping it.
+              <span className="text-white font-semibold">Loop Atom</span> turns daily habits into visible streaks, so showing up tomorrow feels easier than skipping it.
             </>
           }
           metricValue={147}
           metricLabel="Day Streak"
           ctaHeading="Build the next 100 days."
-          ctaDescription="Join 200,000+ people quietly stacking wins with Tally. One tap a day is all it takes."
+          ctaDescription="Join 200,000+ people quietly stacking wins with Loop Atom. One tap a day is all it takes."
         />
         <div className="relative pointer-events-auto">
           <Features />

@@ -72,7 +72,7 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="you@tracker.app" {...register('email')} />
+          <Input id="email" type="email" placeholder="you@loop-atom.app" {...register('email')} />
           {formState.errors.email && (
             <p className="text-xs text-destructive">{formState.errors.email.message}</p>
           )}

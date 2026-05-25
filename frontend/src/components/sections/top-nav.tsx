@@ -36,14 +36,14 @@ export function TopNav() {
         <Link
           href="/"
           className="flex items-center gap-2 group "
-          aria-label="Tally home"
+          aria-label="Loop Atom home"
         >
           <span
             className="inline-block w-7 h-7 rounded-lg bg-gradient-to-br from-primary via-primary to-secondary shadow-[0_0_20px_hsl(var(--primary)/0.5)] group-hover:shadow-[0_0_30px_hsl(var(--primary)/0.8)] transition-shadow"
             aria-hidden="true"
           />
           <span className="fredericka-the-great font-semibold text-3xl  tracking-tight">
-            Tally
+            Loop Atom
           </span>
         </Link>
 
@@ -63,7 +63,7 @@ export function TopNav() {
         <div className="flex items-center gap-3">
           <Link
             href="/login"
-            aria-label="Sign in to Tally"
+            aria-label="Sign in to Loop Atom"
             className="cta-neon group relative inline-flex items-center gap-2 rounded-full pl-1 pr-4 py-1 font-semibold text-sm text-foreground hover:scale-[1.03] active:scale-[0.98] transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <span className="flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-primary to-secondary text-primary-foreground">

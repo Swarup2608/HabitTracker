@@ -30,14 +30,14 @@ async function main() {
   console.log('Seeding…');
 
   await Promise.all([
-    User.deleteMany({ email: 'demo@tracker.app' }),
+    User.deleteMany({ email: 'demo@loop-atom.app' }),
     Habit.deleteMany({}),
     HabitLog.deleteMany({}),
     Todo.deleteMany({}),
   ]);
 
   const user = await User.create({
-    email: 'demo@tracker.app',
+    email: 'demo@loop-atom.app',
     username: 'demo',
     passwordHash: await hashPassword('Demo1234'),
     theme: 'gaming',

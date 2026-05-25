@@ -123,7 +123,18 @@ export function CompleteDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Mood</Label>
+              <div className="flex items-center justify-between">
+                <Label>Mood</Label>
+                {mood && (
+                  <button
+                    type="button"
+                    onClick={() => setMood(undefined)}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
               <Select value={mood} onValueChange={setMood}>
                 <SelectTrigger>
                   <SelectValue placeholder="Optional" />
@@ -138,7 +149,18 @@ export function CompleteDialog({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Energy</Label>
+              <div className="flex items-center justify-between">
+                <Label>Energy</Label>
+                {energy && (
+                  <button
+                    type="button"
+                    onClick={() => setEnergy(undefined)}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
               <Select value={energy} onValueChange={setEnergy}>
                 <SelectTrigger>
                   <SelectValue placeholder="Optional" />

@@ -30,7 +30,7 @@ export function AuthShell({
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">
             <Sparkles className="h-4 w-4" />
           </span>
-          Tracker
+          Loop Atom
         </Link>
         <h1 className="font-display text-2xl font-semibold">{title}</h1>
         <p className="mt-1 text-sm text-muted-foreground dancing-script">{subtitle}</p>

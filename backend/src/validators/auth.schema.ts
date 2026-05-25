@@ -17,28 +17,5 @@ export const loginSchema = z.object({
   password: z.string().min(1),
 });
 
-export const verifyEmailSchema = z.object({
-  token: z.string().min(10, 'Invalid verification token'),
-});
-
-export const resendVerificationSchema = z.object({
-  email: z.string().email().toLowerCase(),
-});
-
-export const forgotSchema = z.object({
-  email: z.string().email().toLowerCase(),
-});
-
-export const resetSchema = z.object({
-  token: z.string().min(10),
-  password: z
-    .string()
-    .min(8)
-    .max(72)
-    .regex(/[A-Z]/)
-    .regex(/[a-z]/)
-    .regex(/[0-9]/),
-});
-
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;

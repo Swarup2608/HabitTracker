@@ -445,7 +445,19 @@ function CalendarEditor({
           />
         </div>
         <div className={cn('space-y-1', !compact && 'md:col-span-2')}>
-          <Label className={labelClass}>Mood</Label>
+          <div className="flex items-center justify-between">
+            <Label className={labelClass}>Mood</Label>
+            {mood && (
+              <button
+                type="button"
+                onClick={() => setMood(undefined)}
+                className="text-xs text-muted-foreground hover:text-foreground"
+                disabled={disabled}
+              >
+                Clear
+              </button>
+            )}
+          </div>
           <Select value={mood} onValueChange={(value) => setMood(value as Mood)} disabled={disabled}>
             <SelectTrigger className={fieldClass}>
               <SelectValue placeholder="Optional" />
@@ -460,7 +472,19 @@ function CalendarEditor({
           </Select>
         </div>
         <div className="space-y-1">
-          <Label className={labelClass}>Energy</Label>
+          <div className="flex items-center justify-between">
+            <Label className={labelClass}>Energy</Label>
+            {energy && (
+              <button
+                type="button"
+                onClick={() => setEnergy(undefined)}
+                className="text-xs text-muted-foreground hover:text-foreground"
+                disabled={disabled}
+              >
+                Clear
+              </button>
+            )}
+          </div>
           <Select value={energy} onValueChange={setEnergy} disabled={disabled}>
             <SelectTrigger className={fieldClass}>
               <SelectValue placeholder="Optional" />

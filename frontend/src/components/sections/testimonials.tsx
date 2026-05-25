@@ -2,7 +2,7 @@ import Image from "next/image";
 
 const quotes = [
   {
-    quote: "I've started and abandoned five habit apps. Tally is the first one that I've kept open for over a year.",
+    quote: "I've started and abandoned five habit apps. Loop Atom is the first one that I've kept open for over a year.",
     name: "Maya Chen",
     role: "Product Designer",
     img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
@@ -14,7 +14,7 @@ const quotes = [
     img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
   },
   {
-    quote: "Finally, a habit tracker that doesn't feel like a spreadsheet. It feels like the diary I always wanted to keep.",
+    quote: "Finally, a habit app that doesn't feel like a chore. Loop Atom makes tiny daily actions feel rewarding and unstoppable.",
     name: "Lila Marquez",
     role: "Writer",
     img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",

@@ -6,7 +6,7 @@ import { CircleDot, Sparkles, Settings, MessageCircle, LogIn } from "lucide-reac
 import { cn } from "@/lib/utils";
 
 const items = [
-  { href: "/", label: "Tally", icon: CircleDot },
+  { href: "/", label: "Loop Atom", icon: CircleDot },
   { href: "/#features", label: "Features", icon: Sparkles },
   { href: "/#how", label: "How it works", icon: Settings },
   { href: "/#reviews", label: "Reviews", icon: MessageCircle },

@@ -1,12 +1,12 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
-import { Toaster } from 'react-hot-toast';
+import { useEffect, useRef, useState } from 'react';
+import { toast, Toaster } from 'react-hot-toast';
 import { initTheme } from '@/stores/theme';
 import { useAuth } from '@/stores/auth';
 import { useAchievementQueue } from '@/stores/achievements';
-import { api } from '@/lib/api';
+import { api, onApiError } from '@/lib/api';
 import { AchievementPopup } from '@/components/achievements/AchievementPopup';
 
 function AchievementChecker() {
@@ -33,6 +33,7 @@ function AchievementChecker() {
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  const lastRateLimitToastAt = useRef(0);
   const [client] = useState(
     () =>
       new QueryClient({
@@ -48,6 +49,22 @@ export function Providers({ children }: { children: React.ReactNode }) {
     initTheme();
     hydrate();
   }, [hydrate]);
+
+  useEffect(() => {
+    const unsubscribe = onApiError((error) => {
+      if (error.response?.status !== 429) return;
+
+      const now = Date.now();
+      if (now - lastRateLimitToastAt.current < 2500) return;
+      lastRateLimitToastAt.current = now;
+
+      const data = error.response.data as { error?: string; message?: string } | undefined;
+      const message = data?.error || data?.message || 'Too many requests. Please try again shortly.';
+      toast.error(message, { id: 'rate-limit-error' });
+    });
+
+    return unsubscribe;
+  }, []);
 
   return (
     <QueryClientProvider client={client}>

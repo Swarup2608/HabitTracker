@@ -174,7 +174,7 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
               </svg>
             </div>
           </div>
-          <span className="opening-loader-label uppercase fredericka-the-great">Tally</span>
+          <span className="opening-loader-label uppercase fredericka-the-great">Loop Atom</span>
         </div>
       </div>
     </>

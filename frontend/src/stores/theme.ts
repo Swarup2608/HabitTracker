@@ -6,7 +6,7 @@ interface ThemeState {
   setTheme: (t: ThemeMode) => void;
 }
 
-const STORAGE_KEY = 'tracker_theme';
+const STORAGE_KEY = 'loop_atom_theme';
 const THEMES: ThemeMode[] = ['dark', 'gaming', 'fantasy'];
 
 const normalizeTheme = (t: string | null): ThemeMode =>
