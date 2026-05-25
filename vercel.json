@@ -9,7 +9,7 @@
       "root": "backend",
       "routePrefix": "/_/backend",
       "buildCommand": "npm run build",
-      "entrypoint": "dist/server.js"
+      "entrypoint": "dist/index.js"
     }
   }
 }
