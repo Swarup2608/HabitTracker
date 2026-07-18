@@ -29,6 +29,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MOODS = ['awful', 'bad', 'okay', 'good', 'great'] as const;
+const OPTIONAL_SELECTION = 'optional';
 
 type Mood = (typeof MOODS)[number];
 
@@ -341,9 +342,9 @@ function CalendarEditor({
   const remove = useDeleteLog(habit._id);
   const [notes, setNotes] = useState(day?.log?.notes ?? '');
   const [minutes, setMinutes] = useState(day?.log?.minutes ?? habit.estimatedMinutes);
-  const [mood, setMood] = useState<Mood | undefined>(day?.log?.mood as Mood | undefined);
-  const [energy, setEnergy] = useState<string | undefined>(
-    typeof day?.log?.energy === 'number' ? String(day.log.energy) : undefined
+  const [mood, setMood] = useState(day?.log?.mood ?? OPTIONAL_SELECTION);
+  const [energy, setEnergy] = useState(
+    typeof day?.log?.energy === 'number' ? String(day.log.energy) : OPTIONAL_SELECTION
   );
   const [err, setErr] = useState<string | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -355,8 +356,8 @@ function CalendarEditor({
   useEffect(() => {
     setNotes(day?.log?.notes ?? '');
     setMinutes(day?.log?.minutes ?? habit.estimatedMinutes);
-    setMood(day?.log?.mood as Mood | undefined);
-    setEnergy(typeof day?.log?.energy === 'number' ? String(day.log.energy) : undefined);
+    setMood(day?.log?.mood ?? OPTIONAL_SELECTION);
+    setEnergy(typeof day?.log?.energy === 'number' ? String(day.log.energy) : OPTIONAL_SELECTION);
     setErr(null);
   }, [day?.log, habit.estimatedMinutes]);
 
@@ -367,8 +368,8 @@ function CalendarEditor({
       const payload = {
         notes: notes.trim(),
         minutes,
-        mood,
-        energy: energy ? Number(energy) : undefined,
+        mood: mood === OPTIONAL_SELECTION ? undefined : mood,
+        energy: energy === OPTIONAL_SELECTION ? undefined : Number(energy),
       };
 
       if (logId) {
@@ -447,10 +448,10 @@ function CalendarEditor({
         <div className={cn('space-y-1', !compact && 'md:col-span-2')}>
           <div className="flex items-center justify-between">
             <Label className={labelClass}>Mood</Label>
-            {mood && (
+            {mood !== OPTIONAL_SELECTION && (
               <button
                 type="button"
-                onClick={() => setMood(undefined)}
+                onClick={() => setMood(OPTIONAL_SELECTION)}
                 className="text-xs text-muted-foreground hover:text-foreground"
                 disabled={disabled}
               >
@@ -458,11 +459,12 @@ function CalendarEditor({
               </button>
             )}
           </div>
-          <Select value={mood} onValueChange={(value) => setMood(value as Mood)} disabled={disabled}>
+          <Select value={mood} onValueChange={setMood} disabled={disabled}>
             <SelectTrigger className={fieldClass}>
-              <SelectValue placeholder="Optional" />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value={OPTIONAL_SELECTION}>Optional</SelectItem>
               {MOODS.map((item) => (
                 <SelectItem key={item} value={item} className="capitalize">
                   {item}
@@ -474,10 +476,10 @@ function CalendarEditor({
         <div className="space-y-1">
           <div className="flex items-center justify-between">
             <Label className={labelClass}>Energy</Label>
-            {energy && (
+            {energy !== OPTIONAL_SELECTION && (
               <button
                 type="button"
-                onClick={() => setEnergy(undefined)}
+                onClick={() => setEnergy(OPTIONAL_SELECTION)}
                 className="text-xs text-muted-foreground hover:text-foreground"
                 disabled={disabled}
               >
@@ -487,9 +489,10 @@ function CalendarEditor({
           </div>
           <Select value={energy} onValueChange={setEnergy} disabled={disabled}>
             <SelectTrigger className={fieldClass}>
-              <SelectValue placeholder="Optional" />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value={OPTIONAL_SELECTION}>Optional</SelectItem>
               {[1, 2, 3, 4, 5].map((item) => (
                 <SelectItem key={item} value={String(item)}>
                   {item}/5

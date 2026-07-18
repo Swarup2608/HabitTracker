@@ -26,6 +26,7 @@ import type { Habit } from '@/lib/types';
 const MOODS = ['awful', 'bad', 'okay', 'good', 'great'] as const;
 
 const todayKey = () => new Date().toISOString().slice(0, 10);
+const OPTIONAL_SELECTION = 'optional';
 
 export function CompleteDialog({
   habit,
@@ -43,13 +44,18 @@ export function CompleteDialog({
   const complete = useCompleteHabit();
   const [date, setDate] = useState(defaultDate ?? todayKey());
   const [notes, setNotes] = useState('');
-  const [mood, setMood] = useState<string | undefined>();
-  const [energy, setEnergy] = useState<string | undefined>();
+  const [mood, setMood] = useState(OPTIONAL_SELECTION);
+  const [moodResetKey, setMoodResetKey] = useState(0);
+  const [energy, setEnergy] = useState(OPTIONAL_SELECTION);
+  const [energyResetKey, setEnergyResetKey] = useState(0);
   const [minutes, setMinutes] = useState<number>(habit.estimatedMinutes);
   const [err, setErr] = useState<string | null>(null);
 
   const startKey = habit.startedAt.slice(0, 10);
   const isPast = date < todayKey();
+
+  const clearMood = () => { setMood(OPTIONAL_SELECTION); setMoodResetKey((k) => k + 1); };
+  const clearEnergy = () => { setEnergy(OPTIONAL_SELECTION); setEnergyResetKey((k) => k + 1); };
 
   const submit = async () => {
     setErr(null);
@@ -58,13 +64,13 @@ export function CompleteDialog({
         id: habit._id,
         date: date === todayKey() ? undefined : date,
         notes: notes.trim() || undefined,
-        mood: mood as 'good' | undefined,
-        energy: energy ? Number(energy) : undefined,
+        mood: mood === OPTIONAL_SELECTION ? undefined : mood,
+        energy: energy === OPTIONAL_SELECTION ? undefined : Number(energy),
         minutes,
       });
       setNotes('');
-      setMood(undefined);
-      setEnergy(undefined);
+      clearMood();
+      clearEnergy();
       setMinutes(habit.estimatedMinutes);
       setDate(todayKey());
       onOpenChange(false);
@@ -94,7 +100,13 @@ export function CompleteDialog({
                 value={date}
                 min={startKey}
                 max={todayKey()}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={(e) => {
+                  setDate(e.target.value);
+                  setNotes('');
+                  clearMood();
+                  clearEnergy();
+                  setMinutes(habit.estimatedMinutes);
+                }}
               />
               {isPast && <p className="text-[11px] text-amber-400">Backfilling a past day</p>}
             </div>
@@ -125,21 +137,22 @@ export function CompleteDialog({
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label>Mood</Label>
-                {mood && (
+                {mood !== OPTIONAL_SELECTION && (
                   <button
                     type="button"
-                    onClick={() => setMood(undefined)}
+                    onClick={clearMood}
                     className="text-xs text-muted-foreground hover:text-foreground"
                   >
                     Clear
                   </button>
                 )}
               </div>
-              <Select value={mood} onValueChange={setMood}>
+              <Select key={`mood-${moodResetKey}`} value={mood} onValueChange={setMood}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Optional" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value={OPTIONAL_SELECTION}>Optional</SelectItem>
                   {MOODS.map((m) => (
                     <SelectItem key={m} value={m} className="capitalize">
                       {m}
@@ -151,21 +164,22 @@ export function CompleteDialog({
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label>Energy</Label>
-                {energy && (
+                {energy !== OPTIONAL_SELECTION && (
                   <button
                     type="button"
-                    onClick={() => setEnergy(undefined)}
+                    onClick={clearEnergy}
                     className="text-xs text-muted-foreground hover:text-foreground"
                   >
                     Clear
                   </button>
                 )}
               </div>
-              <Select value={energy} onValueChange={setEnergy}>
+              <Select key={`energy-${energyResetKey}`} value={energy} onValueChange={setEnergy}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Optional" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value={OPTIONAL_SELECTION}>Optional</SelectItem>
                   {[1, 2, 3, 4, 5].map((n) => (
                     <SelectItem key={n} value={String(n)}>
                       {n}/5
