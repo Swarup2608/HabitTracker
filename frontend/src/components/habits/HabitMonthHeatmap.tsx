@@ -1,40 +1,52 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, Check, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
+import { useEffect, useMemo, useState } from "react";
+import {
+  CalendarDays,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Trash2,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Textarea } from '@/components/ui/textarea';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import {
   useCompleteHabit,
   useDeleteLog,
   useHabitCalendar,
   useUpdateLog,
-} from '@/hooks/useHabits';
-import { apiError } from '@/lib/api';
-import { cn } from '@/lib/utils';
-import type { Habit, HabitCalendarDay } from '@/lib/types';
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+} from "@/hooks/useHabits";
+import { apiError } from "@/lib/api";
+import { cn } from "@/lib/utils";
+import type { Habit, HabitCalendarDay } from "@/lib/types";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const MOODS = ['awful', 'bad', 'okay', 'good', 'great'] as const;
-const OPTIONAL_SELECTION = 'optional';
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MOODS = ["awful", "bad", "okay", "good", "great"] as const;
+const OPTIONAL_SELECTION = "optional";
 
 type Mood = (typeof MOODS)[number];
 
 function pad(n: number) {
-  return String(n).padStart(2, '0');
+  return String(n).padStart(2, "0");
 }
 
 function todayParts() {
@@ -48,9 +60,9 @@ function todayParts() {
 
 function monthLabel(year: number, month: number) {
   return new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString(undefined, {
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
   });
 }
 
@@ -65,18 +77,30 @@ function buildMonthGrid(year: number, month: number) {
   const prevYear = month === 1 ? year - 1 : year;
   for (let i = startWeekday - 1; i >= 0; i--) {
     const day = prevDays - i;
-    cells.push({ key: `${prevYear}-${pad(prevMonth)}-${pad(day)}`, day, inMonth: false });
+    cells.push({
+      key: `${prevYear}-${pad(prevMonth)}-${pad(day)}`,
+      day,
+      inMonth: false,
+    });
   }
 
   for (let day = 1; day <= daysInMonth; day++) {
-    cells.push({ key: `${year}-${pad(month)}-${pad(day)}`, day, inMonth: true });
+    cells.push({
+      key: `${year}-${pad(month)}-${pad(day)}`,
+      day,
+      inMonth: true,
+    });
   }
 
   const nextMonth = month === 12 ? 1 : month + 1;
   const nextYear = month === 12 ? year + 1 : year;
   let nextDay = 1;
   while (cells.length < 42) {
-    cells.push({ key: `${nextYear}-${pad(nextMonth)}-${pad(nextDay)}`, day: nextDay, inMonth: false });
+    cells.push({
+      key: `${nextYear}-${pad(nextMonth)}-${pad(nextDay)}`,
+      day: nextDay,
+      inMonth: false,
+    });
     nextDay++;
   }
 
@@ -94,20 +118,20 @@ function monthKey(year: number, month: number) {
 
 function readableDay(dayKey: string) {
   return new Date(`${dayKey}T00:00:00Z`).toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-    timeZone: 'UTC',
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
   });
 }
 
 export function HabitMonthHeatmap({
   habit,
-  variant = 'card',
+  variant = "card",
 }: {
   habit: Habit;
-  variant?: 'card' | 'detail';
+  variant?: "card" | "detail";
 }) {
   const initial = todayParts();
   const [year, setYear] = useState(initial.year);
@@ -124,7 +148,9 @@ export function HabitMonthHeatmap({
 
   const grid = useMemo(() => buildMonthGrid(year, month), [year, month]);
   const done = calendar.data?.days.filter((day) => day.count > 0).length ?? 0;
-  const total = calendar.data?.days.length ?? new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const total =
+    calendar.data?.days.length ??
+    new Date(Date.UTC(year, month, 0)).getUTCDate();
   const startKey = calendar.data?.startedAt ?? habit.startedAt.slice(0, 10);
   const todayKey = calendar.data?.today ?? initial.key;
   const currentMonthKey = monthKey(year, month);
@@ -138,30 +164,40 @@ export function HabitMonthHeatmap({
     const next = addMonths(year, month, delta);
     const firstDay = `${next.year}-${pad(next.month)}-01`;
     const lastDay = `${next.year}-${pad(next.month)}-${pad(
-      new Date(Date.UTC(next.year, next.month, 0)).getUTCDate()
+      new Date(Date.UTC(next.year, next.month, 0)).getUTCDate(),
     )}`;
     setYear(next.year);
     setMonth(next.month);
-    setSelectedDay(firstDay < startKey ? startKey : lastDay > todayKey ? todayKey : firstDay);
+    setSelectedDay(
+      firstDay < startKey ? startKey : lastDay > todayKey ? todayKey : firstDay,
+    );
   };
 
   const heatmapGridClass =
-    variant === 'detail'
-      ? 'grid-cols-7 grid gap-7 sm:grid-cols-10 md:grid-cols-10 lg:grid-cols-15 2xl:grid-cols-15 w-full'
-      : 'grid gap-2 grid-cols-10  w-full';
-  const heatmapCellClass = variant === 'detail' ? 'h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10' : 'h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7';
+    variant === "detail"
+      ? "grid-cols-7 grid gap-7 sm:grid-cols-10 md:grid-cols-10 lg:grid-cols-15 2xl:grid-cols-15 w-full"
+      : "grid gap-2 grid-cols-10  w-full";
+  const heatmapCellClass =
+    variant === "detail"
+      ? "h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10"
+      : "h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7";
 
   return (
     <>
       <section
         className={cn(
-          'relative rounded-xl border border-border/60 bg-card/40',
-          variant === 'detail' ? 'p-4 sm:p-5' : 'p-3'
+          "relative rounded-xl border border-border/60 bg-card/40",
+          variant === "detail" ? "p-4 sm:p-5" : "p-3",
         )}
       >
         <div className="mb-3 flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <div className={cn('font-semibold', variant === 'detail' ? 'text-base' : 'text-xs')}>
+            <div
+              className={cn(
+                "font-semibold",
+                variant === "detail" ? "text-base" : "text-xs",
+              )}
+            >
               Monthly heat map
             </div>
             <div className="text-[11px] text-muted-foreground">
@@ -170,50 +206,56 @@ export function HabitMonthHeatmap({
           </div>
           <Button
             type="button"
-            size={variant === 'detail' ? 'sm' : 'icon'}
+            size={variant === "detail" ? "sm" : "icon"}
             variant="ghost"
             onClick={() => openCalendar()}
             aria-label="Open monthly calendar"
-            className={variant === 'card' ? 'h-8 w-8 shrink-0' : undefined}
+            className={variant === "card" ? "h-8 w-8 shrink-0" : undefined}
           >
             <CalendarDays className="h-4 w-4" />
-            {variant === 'detail' && 'Calendar'}
+            {variant === "detail" && "Calendar"}
           </Button>
         </div>
 
         {calendar.isLoading ? (
-          <Skeleton className={variant === 'detail' ? 'h-28' : 'h-20'} />
+          <Skeleton className={variant === "detail" ? "h-28" : "h-20"} />
         ) : (
           <div className={heatmapGridClass}>
             {grid.map((cell, index) => {
               const day = daysByKey.get(cell.key);
               const completed = !!day?.count;
               const disabled =
-                !cell.inMonth ||
-                cell.key < startKey ||
-                cell.key > todayKey;
+                !cell.inMonth || cell.key < startKey || cell.key > todayKey;
 
               return (
                 <motion.button
-                  key={`${cell.key}-${cell.inMonth ? 'in' : 'out'}`}
+                  key={`${cell.key}-${cell.inMonth ? "in" : "out"}`}
                   type="button"
                   initial={{ opacity: 0, scale: 0.72 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: Math.min(index * 0.006, 0.18) }}
                   disabled={disabled}
                   onClick={() => openCalendar(cell.key)}
-                  title={cell.inMonth ? `${cell.key} · ${completed ? 'completed' : 'not completed'}` : undefined}
+                  title={
+                    cell.inMonth
+                      ? `${cell.key} · ${completed ? "completed" : "not completed"}`
+                      : undefined
+                  }
                   className={cn(
-                    'aspect-square border transition-all rounded-full flex items-center justify-center',
+                    "aspect-square border transition-all rounded-full flex items-center justify-center",
                     heatmapCellClass,
-                    cell.inMonth ? 'border-border/50' : 'border-border/20 bg-muted/20',
-                    !disabled && 'hover:scale-110 hover:border-primary/80',
-                    disabled && cell.inMonth && 'cursor-not-allowed opacity-75',
-                    completed ? 'border-transparent shadow-sm' : 'bg-muted/75'
+                    cell.inMonth
+                      ? "border-border/50"
+                      : "border-border/20 bg-muted/20",
+                    !disabled && "hover:scale-110 hover:border-primary/80",
+                    disabled && cell.inMonth && "cursor-not-allowed opacity-75",
+                    completed ? "border-transparent shadow-sm" : "bg-muted/75",
                   )}
                   style={{
                     backgroundColor: completed ? habit.color : undefined,
-                    boxShadow: completed ? `0 0 10px ${habit.color}55` : undefined,
+                    boxShadow: completed
+                      ? `0 0 10px ${habit.color}55`
+                      : undefined,
                   }}
                 >
                   {completed && <Check className="h-4 w-4 text-white" />}
@@ -229,7 +271,8 @@ export function HabitMonthHeatmap({
           <DialogHeader className="mb-3">
             <DialogTitle>{habit.name} calendar</DialogTitle>
             <DialogDescription>
-              Select any eligible day in the month, then log or update that completion.
+              Select any eligible day in the month, then log or update that
+              completion.
             </DialogDescription>
           </DialogHeader>
 
@@ -250,7 +293,9 @@ export function HabitMonthHeatmap({
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <div className="text-center font-semibold">{monthLabel(year, month)}</div>
+                <div className="text-center font-semibold">
+                  {monthLabel(year, month)}
+                </div>
                 <Button
                   type="button"
                   variant="ghost"
@@ -274,9 +319,7 @@ export function HabitMonthHeatmap({
                   const completed = !!day?.count;
                   const selected = selectedDay === cell.key;
                   const disabled =
-                    !cell.inMonth ||
-                    cell.key < startKey ||
-                    cell.key > todayKey;
+                    !cell.inMonth || cell.key < startKey || cell.key > todayKey;
 
                   return (
                     <motion.button
@@ -284,22 +327,30 @@ export function HabitMonthHeatmap({
                       type="button"
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
-                      whileHover={!disabled ? { scale: 1.04, y: -1 } : undefined}
+                      whileHover={
+                        !disabled ? { scale: 1.04, y: -1 } : undefined
+                      }
                       whileTap={!disabled ? { scale: 0.97 } : undefined}
                       transition={{ delay: Math.min(index * 0.004, 0.12) }}
                       disabled={disabled}
                       onClick={() => setSelectedDay(cell.key)}
                       className={cn(
-                        'flex h-10 flex-col items-center justify-center rounded-md border text-[11px] transition-colors',
-                        cell.inMonth ? 'border-border/60 bg-card/40' : 'border-border/20 bg-muted/20 text-muted-foreground/40',
-                        !disabled && 'hover:border-primary/50 hover:bg-card/70',
-                        disabled && cell.inMonth && 'cursor-not-allowed opacity-55',
-                        selected && 'border-primary ring-2 ring-primary/50',
-                        completed && 'text-white shadow-md'
+                        "flex h-10 flex-col items-center justify-center rounded-md border text-[11px] transition-colors",
+                        cell.inMonth
+                          ? "border-border/60 bg-card/40"
+                          : "border-border/20 bg-muted/20 text-muted-foreground/40",
+                        !disabled && "hover:border-primary/50 hover:bg-card/70",
+                        disabled &&
+                          cell.inMonth &&
+                          "cursor-not-allowed opacity-55",
+                        selected && "border-primary ring-2 ring-primary/50",
+                        completed && "text-white shadow-md",
                       )}
                       style={{
                         backgroundColor: completed ? habit.color : undefined,
-                        boxShadow: completed ? `0 0 14px ${habit.color}44` : undefined,
+                        boxShadow: completed
+                          ? `0 0 14px ${habit.color}44`
+                          : undefined,
                       }}
                     >
                       <span className="font-semibold">{cell.day}</span>
@@ -313,7 +364,11 @@ export function HabitMonthHeatmap({
             <CalendarEditor
               habit={habit}
               selectedDay={selectedDay}
-              disabled={selectedDay.slice(0, 7) !== currentMonthKey || selectedDay < startKey || selectedDay > todayKey}
+              disabled={
+                selectedDay.slice(0, 7) !== currentMonthKey ||
+                selectedDay < startKey ||
+                selectedDay > todayKey
+              }
               day={daysByKey.get(selectedDay)}
               compact
             />
@@ -340,24 +395,32 @@ function CalendarEditor({
   const complete = useCompleteHabit();
   const update = useUpdateLog(habit._id);
   const remove = useDeleteLog(habit._id);
-  const [notes, setNotes] = useState(day?.log?.notes ?? '');
-  const [minutes, setMinutes] = useState(day?.log?.minutes ?? habit.estimatedMinutes);
+  const [notes, setNotes] = useState(day?.log?.notes ?? "");
+  const [minutes, setMinutes] = useState(
+    day?.log?.minutes ?? habit.estimatedMinutes,
+  );
   const [mood, setMood] = useState(day?.log?.mood ?? OPTIONAL_SELECTION);
   const [energy, setEnergy] = useState(
-    typeof day?.log?.energy === 'number' ? String(day.log.energy) : OPTIONAL_SELECTION
+    typeof day?.log?.energy === "number"
+      ? String(day.log.energy)
+      : OPTIONAL_SELECTION,
   );
   const [err, setErr] = useState<string | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const logId = day?.log?._id;
-  const fieldClass = compact ? 'h-9 text-sm' : undefined;
-  const labelClass = compact ? 'text-xs' : undefined;
+  const fieldClass = compact ? "h-9 text-sm" : undefined;
+  const labelClass = compact ? "text-xs" : undefined;
 
   useEffect(() => {
-    setNotes(day?.log?.notes ?? '');
+    setNotes(day?.log?.notes ?? "");
     setMinutes(day?.log?.minutes ?? habit.estimatedMinutes);
     setMood(day?.log?.mood ?? OPTIONAL_SELECTION);
-    setEnergy(typeof day?.log?.energy === 'number' ? String(day.log.energy) : OPTIONAL_SELECTION);
+    setEnergy(
+      typeof day?.log?.energy === "number"
+        ? String(day.log.energy)
+        : OPTIONAL_SELECTION,
+    );
     setErr(null);
   }, [day?.log, habit.estimatedMinutes]);
 
@@ -375,7 +438,11 @@ function CalendarEditor({
       if (logId) {
         await update.mutateAsync({ logId, ...payload });
       } else {
-        await complete.mutateAsync({ id: habit._id, date: selectedDay, ...payload });
+        await complete.mutateAsync({
+          id: habit._id,
+          date: selectedDay,
+          ...payload,
+        });
       }
     } catch (e) {
       setErr(apiError(e));
@@ -398,31 +465,51 @@ function CalendarEditor({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.22 }}
       className={cn(
-        'rounded-xl border border-border/60 bg-background/35',
-        compact ? 'p-2.5' : 'p-4'
+        "rounded-xl border border-border/60 bg-background/35",
+        compact ? "p-2.5" : "p-4",
       )}
     >
-      <div className={cn('flex items-start justify-between gap-2', compact ? 'mb-2' : 'mb-3')}>
+      <div
+        className={cn(
+          "flex items-start justify-between gap-2",
+          compact ? "mb-2" : "mb-3",
+        )}
+      >
         <div>
-          <div className={cn('font-semibold', compact && 'text-sm')}>{readableDay(selectedDay)}</div>
+          <div className={cn("font-semibold", compact && "text-sm")}>
+            {readableDay(selectedDay)}
+          </div>
           <div className="text-[11px] leading-snug text-muted-foreground">
             {disabled
-              ? 'Choose an eligible day from this month to make changes.'
+              ? "Choose an eligible day from this month to make changes."
               : logId
-                ? 'Completion logged. Update the details below.'
-                : 'No completion yet. Add one for this date.'}
+                ? "Completion logged. Update the details below."
+                : "No completion yet. Add one for this date."}
           </div>
         </div>
         {logId && (
-          <Button type="button" variant="ghost" size="icon" onClick={() => setDeleteConfirmOpen(true)} aria-label="Delete completion">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setDeleteConfirmOpen(true)}
+            aria-label="Delete completion"
+          >
             <Trash2 className="h-4 w-4 text-destructive" />
           </Button>
         )}
       </div>
 
-      <div className={cn('grid gap-2.5', compact ? 'grid-cols-1' : 'md:grid-cols-[120px_1fr_120px_120px]')}>
+      <div
+        className={cn(
+          "grid gap-2.5",
+          compact ? "grid-cols-1" : "md:grid-cols-[120px_1fr_120px_120px]",
+        )}
+      >
         <div className="space-y-1">
-          <Label htmlFor="calendar-minutes" className={labelClass}>Minutes</Label>
+          <Label htmlFor="calendar-minutes" className={labelClass}>
+            Minutes
+          </Label>
           <Input
             id="calendar-minutes"
             type="number"
@@ -434,18 +521,20 @@ function CalendarEditor({
             onChange={(event) => setMinutes(Number(event.target.value))}
           />
         </div>
-        <div className={cn('space-y-1', !compact && 'md:col-span-3')}>
-          <Label htmlFor="calendar-notes" className={labelClass}>Notes</Label>
+        <div className={cn("space-y-1", !compact && "md:col-span-3")}>
+          <Label htmlFor="calendar-notes" className={labelClass}>
+            Notes
+          </Label>
           <Textarea
             id="calendar-notes"
             value={notes}
             disabled={disabled}
             onChange={(event) => setNotes(event.target.value)}
             placeholder="What happened on this day?"
-            className={compact ? 'min-h-16 text-sm' : undefined}
+            className={compact ? "min-h-16 text-sm" : undefined}
           />
         </div>
-        <div className={cn('space-y-1', !compact && 'md:col-span-2')}>
+        <div className={cn("space-y-1", !compact && "md:col-span-2")}>
           <div className="flex items-center justify-between">
             <Label className={labelClass}>Mood</Label>
             {mood !== OPTIONAL_SELECTION && (
@@ -504,14 +593,14 @@ function CalendarEditor({
         <div className="flex items-end">
           <Button
             type="button"
-            variant={logId ? 'default' : 'glow'}
+            variant={logId ? "default" : "glow"}
             onClick={save}
             loading={complete.isPending || update.isPending}
             disabled={disabled}
-            size={compact ? 'sm' : 'default'}
+            size={compact ? "sm" : "default"}
             className="w-full"
           >
-            {logId ? 'Update' : 'Log day'}
+            {logId ? "Update" : "Log day"}
           </Button>
         </div>
       </div>
