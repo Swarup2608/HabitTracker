@@ -73,7 +73,7 @@ app.use(
   })
 );
 app.use(express.json({ limit: '100kb' }));
-app.use(express.urlencoded({ limit: '100kb' }));
+app.use(express.urlencoded({ limit: '100kb', extended: false }));
 app.use(cookieParser());
 
 // Set request timeout (30 seconds)
